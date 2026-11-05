@@ -1,0 +1,47 @@
+[project]
+name = "council-vote"
+version = "0.1.0"
+description = "A council voting domain with Django adapters"
+requires-python = ">=3.14"
+dependencies = ["django>=6.1.3"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = ["pytest", "pytest-django", "ruff", "mypy", "django-stubs", "import-linter"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+mypy_path = "src"
+files = ["src", "tests", "scripts", "manage.py"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.importlinter]
+root_package = "council_vote"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Adapters point inward and remain independent"
+type = "layers"
+containers = ["council_vote"]
+layers = ["composition", "presentation | infrastructure", "application", "domain"]
+exhaustive = true
+
+[[tool.importlinter.contracts]]
+name = "Core excludes Django and direct database access"
+type = "forbidden"
+source_modules = ["council_vote.domain", "council_vote.application"]
+forbidden_modules = ["django", "sqlite3"]
