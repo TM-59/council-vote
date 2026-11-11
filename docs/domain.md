@@ -2,7 +2,8 @@
 
 Council Vote is a single-player logic puzzle: choose an agenda's three binary
 clauses, predict five seats' public ballots and pass three councils in order.
-This is the M2 design contract; M1 implements the health route and checks only.
+M2 implements this contract as a pure domain (`src/council_vote/domain/model.py`);
+storage and the screen follow in M3 and M4.
 
 | Term | Meaning and planned model |
 | --- | --- |
@@ -29,8 +30,51 @@ with no attempts left ends it as lost. Finished sessions reject further actions.
 Invalid clauses or identities leave all state and history unchanged. Repeated
 agendas are allowed and consume another attempt. Ballots are deterministic from
 the council's public conditions and the agenda; there is no random voting.
-M2 will commit the three fixed councils and test that each has a passing agenda
-by enumerating all eight possibilities. Changing an agenda creates a new value.
+The three fixed councils are committed below, and the tests enumerate all eight
+agendas for each. Changing an agenda creates a new value.
+
+## The three councils
+
+A seat abstains when its abstaining condition holds; otherwise it votes yes when
+its yes condition holds, and no when it does not.
+
+### Council 1: Harbour Wardens
+
+| Seat | Public condition |
+| --- | --- |
+| warden | yes if lamps on |
+| pilot | yes if lamps on and gate on |
+| chandler | yes if bell off |
+| ferryman | abstains if bell on; otherwise yes if gate on |
+| clerk | abstains if lamps off; otherwise always yes |
+
+Passing agendas (clauses switched on): lamps; lamps, gate; lamps, gate, bell — 3 of 8.
+
+### Council 2: Night Watch
+
+| Seat | Public condition |
+| --- | --- |
+| captain | yes if bell on and gate off |
+| lamplighter | abstains if lamps off and bell off; otherwise yes if lamps on |
+| gatekeeper | yes if gate off |
+| ringer | abstains if gate on and bell off; otherwise yes if bell on |
+| recruit | abstains if lamps on and gate on; otherwise yes if lamps off |
+
+Passing agendas (clauses switched on): bell; lamps, bell — 2 of 8.
+
+### Council 3: Guild Elders
+
+| Seat | Public condition |
+| --- | --- |
+| mason | yes if gate on and lamps off |
+| weaver | abstains if lamps on and bell on; otherwise yes if lamps on and bell off |
+| smith | abstains if gate off and bell off; otherwise yes if bell on |
+| scribe | abstains if gate on and bell on; otherwise yes if lamps off and gate off |
+| elder | yes if gate on and bell on |
+
+Passing agendas (clauses switched on): gate, bell; lamps, gate, bell — 2 of 8.
+
+No agenda passes all three councils, so each council has to be read on its own.
 
 The **Council Session** bounded context owns agendas, seat conditions, ballots,
 resolution and session completion. Real elections, personal identities, chat,
@@ -60,7 +104,7 @@ site packages disabled. Core code must not bypass contracts with dynamic imports
 ## Roadmap and sources
 
 1. M1: vocabulary, empty core packages, health route and verification.
-2. M2: values, aggregate, events, counter, fixed councils and pure rule tests.
+2. M2 (done): values, aggregate, events, counter, fixed councils and pure rule tests.
 3. M3: start/resolve/read use cases, ORM repository, migrations and atomicity tests.
 4. M4: one browser screen, public conditions, complete playthrough and actual screenshot.
 

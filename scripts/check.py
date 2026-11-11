@@ -97,7 +97,15 @@ summary = dict(
             duration_seconds=durations[0],
             counts=counts,
             junit=str(junit) if junit.exists() else None,
-            requirements=["REQ-HEALTH", "REQ-CORE"],
+            requirements=[
+                "REQ-HEALTH",
+                "REQ-CORE",
+                "REQ-VOTE",
+                "REQ-AGENDA",
+                "REQ-SEAT",
+                "REQ-COUNCIL",
+                "REQ-SESSION",
+            ],
             reason="unit process timed out or failed to start" if results[0] == 124 else None,
         )
     ],

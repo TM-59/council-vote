@@ -1,4 +1,4 @@
-# M1 requirements
+# Requirements (M1 and M2)
 
 - REQ-HEALTH: GET /health/ returns status ok as JSON; other methods are rejected.
 - REQ-CORE: domain/application import without frameworks; adapters point inward.
@@ -6,4 +6,11 @@
 
 Test names carry requirement IDs. Import Linter also enforces REQ-CORE.
 REQ-CHECK is verified with isolated failure/timeout runs during scaffold acceptance.
-Gameplay rules in domain.md are the M2 contract, not implemented M1 requirements.
+
+M2, the pure domain (standard library only):
+
+- REQ-VOTE: an agenda is approved only with at least three non-abstaining ballots and more yes than no; a tie is rejected.
+- REQ-AGENDA: an agenda is an immutable value of three true/false clauses; eight exist.
+- REQ-SEAT: a seat's public condition yields exactly one ballot; abstaining is checked first.
+- REQ-COUNCIL: a council has five distinct seats; the three fixed councils have 3, 2 and 2 passing agendas, found by enumeration.
+- REQ-SESSION: two attempts per council; approval advances and restores attempts; three approvals win; running out loses; finished sessions and invalid agendas change nothing.
