@@ -11,7 +11,12 @@
       "requirements": [
         "REQ-HEALTH",
         "REQ-CORE",
-        "REQ-CHECK"
+        "REQ-CHECK",
+        "REQ-VOTE",
+        "REQ-AGENDA",
+        "REQ-SEAT",
+        "REQ-COUNCIL",
+        "REQ-SESSION"
       ]
     },
     "integration": {
@@ -21,7 +26,7 @@
       "reason": "Deferred until the playable screen in M4."
     },
     "perf": {
-      "reason": "No gameplay or measurable performance contract in M1."
+      "reason": "Pure rules over eight agendas; no measurable performance contract before the screen in M4."
     },
     "mem": {
       "reason": "No simulation or persistence workload in M1."
