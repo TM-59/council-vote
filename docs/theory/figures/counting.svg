@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 494 470" width="494" height="470" font-family="sans-serif" font-size="12">
+<rect width="494" height="470" fill="#ffffff"/>
+<text x="16" y="26" font-size="16" font-weight="bold" fill="#222">Five ballots: when is an agenda approved?</text>
+<text x="282" y="42" text-anchor="middle" fill="#222">yes ballots</text>
+<text transform="translate(22 262) rotate(-90)" text-anchor="middle" fill="#222">no ballots</text>
+<text x="122" y="62" text-anchor="middle" fill="#444">0</text>
+<text x="186" y="62" text-anchor="middle" fill="#444">1</text>
+<text x="250" y="62" text-anchor="middle" fill="#444">2</text>
+<text x="314" y="62" text-anchor="middle" fill="#444">3</text>
+<text x="378" y="62" text-anchor="middle" fill="#444">4</text>
+<text x="442" y="62" text-anchor="middle" fill="#444">5</text>
+<text x="80" y="106" text-anchor="end" fill="#444">0</text>
+<rect x="90" y="70" width="61" height="61" fill="#bbbbbb"/>
+<text x="121" y="100" text-anchor="middle" fill="#ffffff" font-size="11">no quorum</text>
+<text x="121" y="115" text-anchor="middle" fill="#ffffff" font-size="11">5 abstain</text>
+<rect x="154" y="70" width="61" height="61" fill="#bbbbbb"/>
+<text x="185" y="100" text-anchor="middle" fill="#ffffff" font-size="11">no quorum</text>
+<text x="185" y="115" text-anchor="middle" fill="#ffffff" font-size="11">4 abstain</text>
+<rect x="218" y="70" width="61" height="61" fill="#bbbbbb"/>
+<text x="249" y="100" text-anchor="middle" fill="#ffffff" font-size="11">no quorum</text>
+<text x="249" y="115" text-anchor="middle" fill="#ffffff" font-size="11">3 abstain</text>
+<rect x="282" y="70" width="61" height="61" fill="#2ca02c"/>
+<text x="313" y="100" text-anchor="middle" fill="#ffffff" font-size="11">approved</text>
+<text x="313" y="115" text-anchor="middle" fill="#ffffff" font-size="11">2 abstain</text>
+<rect x="346" y="70" width="61" height="61" fill="#2ca02c"/>
+<text x="377" y="100" text-anchor="middle" fill="#ffffff" font-size="11">approved</text>
+<text x="377" y="115" text-anchor="middle" fill="#ffffff" font-size="11">1 abstain</text>
+<rect x="410" y="70" width="61" height="61" fill="#2ca02c"/>
+<text x="441" y="100" text-anchor="middle" fill="#ffffff" font-size="11">approved</text>
+<text x="441" y="115" text-anchor="middle" fill="#ffffff" font-size="11">0 abstain</text>
+<text x="80" y="170" text-anchor="end" fill="#444">1</text>
+<rect x="90" y="134" width="61" height="61" fill="#bbbbbb"/>
+<text x="121" y="164" text-anchor="middle" fill="#ffffff" font-size="11">no quorum</text>
+<text x="121" y="179" text-anchor="middle" fill="#ffffff" font-size="11">4 abstain</text>
+<rect x="154" y="134" width="61" height="61" fill="#bbbbbb"/>
+<text x="185" y="164" text-anchor="middle" fill="#ffffff" font-size="11">no quorum</text>
+<text x="185" y="179" text-anchor="middle" fill="#ffffff" font-size="11">3 abstain</text>
+<rect x="218" y="134" width="61" height="61" fill="#2ca02c"/>
+<text x="249" y="164" text-anchor="middle" fill="#ffffff" font-size="11">approved</text>
+<text x="249" y="179" text-anchor="middle" fill="#ffffff" font-size="11">2 abstain</text>
+<rect x="282" y="134" width="61" height="61" fill="#2ca02c"/>
+<text x="313" y="164" text-anchor="middle" fill="#ffffff" font-size="11">approved</text>
+<text x="313" y="179" text-anchor="middle" fill="#ffffff" font-size="11">1 abstain</text>
+<rect x="346" y="134" width="61" height="61" fill="#2ca02c"/>
+<text x="377" y="164" text-anchor="middle" fill="#ffffff" font-size="11">approved</text>
+<text x="377" y="179" text-anchor="middle" fill="#ffffff" font-size="11">0 abstain</text>
+<text x="80" y="234" text-anchor="end" fill="#444">2</text>
+<rect x="90" y="198" width="61" height="61" fill="#bbbbbb"/>
+<text x="121" y="228" text-anchor="middle" fill="#ffffff" font-size="11">no quorum</text>
+<text x="121" y="243" text-anchor="middle" fill="#ffffff" font-size="11">3 abstain</text>
+<rect x="154" y="198" width="61" height="61" fill="#d62728"/>
+<text x="185" y="228" text-anchor="middle" fill="#ffffff" font-size="11">rejected</text>
+<text x="185" y="243" text-anchor="middle" fill="#ffffff" font-size="11">2 abstain</text>
+<rect x="218" y="198" width="61" height="61" fill="#d62728"/>
+<text x="249" y="228" text-anchor="middle" fill="#ffffff" font-size="11">rejected</text>
+<text x="249" y="243" text-anchor="middle" fill="#ffffff" font-size="11">1 abstain</text>
+<rect x="282" y="198" width="61" height="61" fill="#2ca02c"/>
+<text x="313" y="228" text-anchor="middle" fill="#ffffff" font-size="11">approved</text>
+<text x="313" y="243" text-anchor="middle" fill="#ffffff" font-size="11">0 abstain</text>
+<text x="80" y="298" text-anchor="end" fill="#444">3</text>
+<rect x="90" y="262" width="61" height="61" fill="#d62728"/>
+<text x="121" y="292" text-anchor="middle" fill="#ffffff" font-size="11">rejected</text>
+<text x="121" y="307" text-anchor="middle" fill="#ffffff" font-size="11">2 abstain</text>
+<rect x="154" y="262" width="61" height="61" fill="#d62728"/>
+<text x="185" y="292" text-anchor="middle" fill="#ffffff" font-size="11">rejected</text>
+<text x="185" y="307" text-anchor="middle" fill="#ffffff" font-size="11">1 abstain</text>
+<rect x="218" y="262" width="61" height="61" fill="#d62728"/>
+<text x="249" y="292" text-anchor="middle" fill="#ffffff" font-size="11">rejected</text>
+<text x="249" y="307" text-anchor="middle" fill="#ffffff" font-size="11">0 abstain</text>
+<text x="80" y="362" text-anchor="end" fill="#444">4</text>
+<rect x="90" y="326" width="61" height="61" fill="#d62728"/>
+<text x="121" y="356" text-anchor="middle" fill="#ffffff" font-size="11">rejected</text>
+<text x="121" y="371" text-anchor="middle" fill="#ffffff" font-size="11">1 abstain</text>
+<rect x="154" y="326" width="61" height="61" fill="#d62728"/>
+<text x="185" y="356" text-anchor="middle" fill="#ffffff" font-size="11">rejected</text>
+<text x="185" y="371" text-anchor="middle" fill="#ffffff" font-size="11">0 abstain</text>
+<text x="80" y="426" text-anchor="end" fill="#444">5</text>
+<rect x="90" y="390" width="61" height="61" fill="#d62728"/>
+<text x="121" y="420" text-anchor="middle" fill="#ffffff" font-size="11">rejected</text>
+<text x="121" y="435" text-anchor="middle" fill="#ffffff" font-size="11">0 abstain</text>
+</svg>

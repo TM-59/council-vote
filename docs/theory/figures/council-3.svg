@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 298" width="800" height="298" font-family="sans-serif" font-size="12">
+<rect width="800" height="298" fill="#ffffff"/>
+<text x="16" y="26" font-size="16" font-weight="bold" fill="#222">Guild Elders: every agenda</text>
+<text x="16" y="60" fill="#444">clauses switched on</text>
+<text x="196" y="60" text-anchor="middle" fill="#222">mason</text>
+<text x="288" y="60" text-anchor="middle" fill="#222">weaver</text>
+<text x="380" y="60" text-anchor="middle" fill="#222">smith</text>
+<text x="472" y="60" text-anchor="middle" fill="#222">scribe</text>
+<text x="564" y="60" text-anchor="middle" fill="#222">elder</text>
+<text x="622" y="60" fill="#444">yes / no / abstain</text>
+<text x="16" y="87" fill="#222">nothing</text>
+<rect x="150" y="70" width="89" height="23" fill="#d62728"/>
+<text x="196" y="87" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="242" y="70" width="89" height="23" fill="#d62728"/>
+<text x="288" y="87" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="334" y="70" width="89" height="23" fill="#bbbbbb"/>
+<text x="380" y="87" text-anchor="middle" fill="#ffffff">–</text>
+<rect x="426" y="70" width="89" height="23" fill="#2ca02c"/>
+<text x="472" y="87" text-anchor="middle" fill="#ffffff">yes</text>
+<rect x="518" y="70" width="89" height="23" fill="#d62728"/>
+<text x="564" y="87" text-anchor="middle" fill="#ffffff">no</text>
+<text x="622" y="87" fill="#222">1 / 3 / 1   rejected</text>
+<text x="16" y="113" fill="#222">bell</text>
+<rect x="150" y="96" width="89" height="23" fill="#d62728"/>
+<text x="196" y="113" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="242" y="96" width="89" height="23" fill="#d62728"/>
+<text x="288" y="113" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="334" y="96" width="89" height="23" fill="#2ca02c"/>
+<text x="380" y="113" text-anchor="middle" fill="#ffffff">yes</text>
+<rect x="426" y="96" width="89" height="23" fill="#2ca02c"/>
+<text x="472" y="113" text-anchor="middle" fill="#ffffff">yes</text>
+<rect x="518" y="96" width="89" height="23" fill="#d62728"/>
+<text x="564" y="113" text-anchor="middle" fill="#ffffff">no</text>
+<text x="622" y="113" fill="#222">2 / 3 / 0   rejected</text>
+<text x="16" y="139" fill="#222">gate</text>
+<rect x="150" y="122" width="89" height="23" fill="#2ca02c"/>
+<text x="196" y="139" text-anchor="middle" fill="#ffffff">yes</text>
+<rect x="242" y="122" width="89" height="23" fill="#d62728"/>
+<text x="288" y="139" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="334" y="122" width="89" height="23" fill="#d62728"/>
+<text x="380" y="139" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="426" y="122" width="89" height="23" fill="#d62728"/>
+<text x="472" y="139" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="518" y="122" width="89" height="23" fill="#d62728"/>
+<text x="564" y="139" text-anchor="middle" fill="#ffffff">no</text>
+<text x="622" y="139" fill="#222">1 / 4 / 0   rejected</text>
+<text x="16" y="165" fill="#222">gate + bell</text>
+<rect x="150" y="148" width="89" height="23" fill="#2ca02c"/>
+<text x="196" y="165" text-anchor="middle" fill="#ffffff">yes</text>
+<rect x="242" y="148" width="89" height="23" fill="#d62728"/>
+<text x="288" y="165" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="334" y="148" width="89" height="23" fill="#2ca02c"/>
+<text x="380" y="165" text-anchor="middle" fill="#ffffff">yes</text>
+<rect x="426" y="148" width="89" height="23" fill="#bbbbbb"/>
+<text x="472" y="165" text-anchor="middle" fill="#ffffff">–</text>
+<rect x="518" y="148" width="89" height="23" fill="#2ca02c"/>
+<text x="564" y="165" text-anchor="middle" fill="#ffffff">yes</text>
+<text x="622" y="165" fill="#222" font-weight="bold">3 / 1 / 1   PASSES</text>
+<text x="16" y="191" fill="#222">lamps</text>
+<rect x="150" y="174" width="89" height="23" fill="#d62728"/>
+<text x="196" y="191" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="242" y="174" width="89" height="23" fill="#2ca02c"/>
+<text x="288" y="191" text-anchor="middle" fill="#ffffff">yes</text>
+<rect x="334" y="174" width="89" height="23" fill="#bbbbbb"/>
+<text x="380" y="191" text-anchor="middle" fill="#ffffff">–</text>
+<rect x="426" y="174" width="89" height="23" fill="#d62728"/>
+<text x="472" y="191" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="518" y="174" width="89" height="23" fill="#d62728"/>
+<text x="564" y="191" text-anchor="middle" fill="#ffffff">no</text>
+<text x="622" y="191" fill="#222">1 / 3 / 1   rejected</text>
+<text x="16" y="217" fill="#222">lamps + bell</text>
+<rect x="150" y="200" width="89" height="23" fill="#d62728"/>
+<text x="196" y="217" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="242" y="200" width="89" height="23" fill="#bbbbbb"/>
+<text x="288" y="217" text-anchor="middle" fill="#ffffff">–</text>
+<rect x="334" y="200" width="89" height="23" fill="#2ca02c"/>
+<text x="380" y="217" text-anchor="middle" fill="#ffffff">yes</text>
+<rect x="426" y="200" width="89" height="23" fill="#d62728"/>
+<text x="472" y="217" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="518" y="200" width="89" height="23" fill="#d62728"/>
+<text x="564" y="217" text-anchor="middle" fill="#ffffff">no</text>
+<text x="622" y="217" fill="#222">1 / 3 / 1   rejected</text>
+<text x="16" y="243" fill="#222">lamps + gate</text>
+<rect x="150" y="226" width="89" height="23" fill="#d62728"/>
+<text x="196" y="243" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="242" y="226" width="89" height="23" fill="#2ca02c"/>
+<text x="288" y="243" text-anchor="middle" fill="#ffffff">yes</text>
+<rect x="334" y="226" width="89" height="23" fill="#d62728"/>
+<text x="380" y="243" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="426" y="226" width="89" height="23" fill="#d62728"/>
+<text x="472" y="243" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="518" y="226" width="89" height="23" fill="#d62728"/>
+<text x="564" y="243" text-anchor="middle" fill="#ffffff">no</text>
+<text x="622" y="243" fill="#222">1 / 4 / 0   rejected</text>
+<text x="16" y="269" fill="#222">lamps + gate + bell</text>
+<rect x="150" y="252" width="89" height="23" fill="#d62728"/>
+<text x="196" y="269" text-anchor="middle" fill="#ffffff">no</text>
+<rect x="242" y="252" width="89" height="23" fill="#bbbbbb"/>
+<text x="288" y="269" text-anchor="middle" fill="#ffffff">–</text>
+<rect x="334" y="252" width="89" height="23" fill="#2ca02c"/>
+<text x="380" y="269" text-anchor="middle" fill="#ffffff">yes</text>
+<rect x="426" y="252" width="89" height="23" fill="#bbbbbb"/>
+<text x="472" y="269" text-anchor="middle" fill="#ffffff">–</text>
+<rect x="518" y="252" width="89" height="23" fill="#2ca02c"/>
+<text x="564" y="269" text-anchor="middle" fill="#ffffff">yes</text>
+<text x="622" y="269" fill="#222" font-weight="bold">2 / 1 / 2   PASSES</text>
+</svg>

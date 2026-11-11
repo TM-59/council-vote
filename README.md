@@ -17,6 +17,12 @@ for event in session.resolve(Agenda(lamps=True, gate=True, bell=False)):
 "
 ```
 
+**Theory handbook**: [docs/theory/](docs/theory/README.md) — 9 statements (the language, the agenda
+value, a seat's condition, quorum and majority, the three councils as boards, the session, one proposal
+step by step, determinism and the chance of guessing, the dependency rule), each with its rule,
+assumptions, derivation, code, tests and a figure. `make theory-figs` regenerates the figures and the
+measured values; `make theory-check` checks the coverage table.
+
 Requires Python 3.14 and [uv](https://docs.astral.sh/uv/).
 
 ```sh
