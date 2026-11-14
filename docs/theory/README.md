@@ -39,12 +39,12 @@ flowchart TD
 | S06 | The session: two attempts at each of three councils | [2](02-session-and-layers.md) | mermaid | `src/council_vote/domain/model.py#CouncilSession`, `src/council_vote/domain/model.py#ATTEMPTS_PER_COUNCIL` | `tests/test_domain.py#test_REQ_SESSION_three_approvals_win`, `tests/test_domain.py#test_REQ_SESSION_two_rejections_lose_and_repeats_are_allowed` |
 | S07 | One proposal: validate, vote, count, record | [2](02-session-and-layers.md) | mermaid | `src/council_vote/domain/model.py#def resolve` | `tests/test_domain.py#test_REQ_SESSION_finished_sessions_reject_and_do_not_change`, `tests/test_domain.py#test_REQ_SESSION_invalid_agenda_changes_nothing` |
 | S08 | Nothing is random: guessing wins 11.7 %, reading always | [2](02-session-and-layers.md) | `figures/random-play.svg` | `src/council_vote/domain/model.py#def ballots` | `tests/test_domain.py#test_REQ_SESSION_every_pair_of_first_moves_is_reproducible`, `scripts/theory_figs.py#play-win-chance` |
-| S09 | Layers and the inward dependency rule | [2](02-session-and-layers.md) | mermaid | `pyproject.toml#Adapters point inward and remain independent` | `tests/test_scaffold.py#test_REQ_CORE_imports_without_frameworks` |
+| S09 | Layers and the inward dependency rule | [2](02-session-and-layers.md) | mermaid | `pyproject.toml#Adapters point inward and remain independent`, `src/council_vote/application/ports.py#SessionRepository`, `src/council_vote/infrastructure/repository.py#DjangoSessionRepository`, `src/council_vote/infrastructure/models.py#SessionRecord`, `src/council_vote/composition/session.py#build_session_use_cases` | `tests/test_scaffold.py#test_REQ_CORE_imports_without_frameworks`, `tests/test_application.py#test_REQ_USECASE_start_resolve_and_read_use_the_repository_port`, `tests/test_infrastructure.py#test_REQ_PERSISTENCE_session_and_history_survive_a_process_restart` |
 
 Tests named `scripts/theory_figs.py#…` are measurements recorded in [figures/values.md](figures/values.md) by `make theory-figs`, not assertions of `make check`.
 
 ## Reading the source against this table
 
-Reviewed for this handbook: all of `src/council_vote/domain/model.py` (the sixteen names exported by `src/council_vote/domain/__init__.py`), the two Import Linter contracts in `pyproject.toml`, and `tests/test_domain.py`. The application, infrastructure and presentation packages hold no rules yet (M3, M4).
+Reviewed for this handbook: all of `src/council_vote/domain/model.py` (the sixteen names exported by `src/council_vote/domain/__init__.py`), the two Import Linter contracts in `pyproject.toml`, the application port and use cases, the Django repository and model, and the application and persistence tests. Presentation remains deferred to M4.
 
 The program is unchanged by this handbook: it adds `scripts/theory_figs.py`, `scripts/theory_check.py`, two Makefile targets, one Ruff per-file setting and these pages.

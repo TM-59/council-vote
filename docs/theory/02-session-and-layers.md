@@ -90,7 +90,9 @@ where $p_k$ is the fraction of agendas that pass council $k$ (S05). A player who
 
 ## S09 — The rules do not know about Django
 
-**Statement.** The code is in four layers, and imports point inward only:
+**Statement.** The code is in four layers, and imports point inward only. The
+application owns session use cases and a framework-free repository port; the
+Django adapter stores each session and its event history in SQLite:
 
 $$\text{composition} \;\to\; \{\text{presentation},\ \text{infrastructure}\} \;\to\; \text{application} \;\to\; \text{domain} .$$
 
@@ -103,17 +105,17 @@ Presentation and infrastructure do not import each other. The domain and the app
 ```mermaid
 flowchart TD
     C["composition: settings, URLs, wiring"] --> P["presentation: views, forms, templates"]
-    C --> I["infrastructure: ORM records, repositories"]
-    P --> A["application: use cases and ports"]
+    C --> I["infrastructure: ORM records, repository"]
+    P --> A["application: start, resolve, read; repository port"]
     I --> A
     A --> D["domain: Agenda, Seat, Council, VoteCounter, CouncilSession, events"]
     P -. "forbidden" .- I
     D -. "imports only the standard library" .-> STD["collections.abc, dataclasses, enum"]
 ```
 
-**Code.** The two Import Linter contracts in `pyproject.toml` (`Adapters point inward and remain independent`, `Core excludes Django and direct database access`); `src/council_vote/domain/__init__.py` exports the sixteen names of S01.
+**Code.** The two Import Linter contracts in `pyproject.toml` (`Adapters point inward and remain independent`, `Core excludes Django and direct database access`); `SessionRepository` in `src/council_vote/application/ports.py`; `DjangoSessionRepository` in `src/council_vote/infrastructure/repository.py`; `SessionRecord` in `src/council_vote/infrastructure/models.py`; `build_session_use_cases` in `src/council_vote/composition/session.py`; `src/council_vote/domain/__init__.py` exports the sixteen names of S01.
 
-**Tests.** `make check` runs Import Linter (2 contracts kept); `test_REQ_CORE_imports_without_frameworks` in `tests/test_scaffold.py` starts Python with site packages disabled and imports the domain and the application.
+**Tests.** `make check` runs Import Linter (2 contracts kept); `test_REQ_CORE_imports_without_frameworks` in `tests/test_scaffold.py` starts Python with site packages disabled and imports the domain and the application; `test_REQ_USECASE_start_resolve_and_read_use_the_repository_port` exercises the application port; `test_REQ_PERSISTENCE_session_and_history_survive_a_process_restart` restores SQLite state in a separate process.
 
 ## References
 

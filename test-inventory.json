@@ -16,11 +16,17 @@
         "REQ-AGENDA",
         "REQ-SEAT",
         "REQ-COUNCIL",
-        "REQ-SESSION"
+        "REQ-SESSION",
+        "REQ-USECASE"
       ]
     },
     "integration": {
-      "reason": "Deferred until Django ORM and SQLite persistence in M3."
+      "framework": "pytest",
+      "marker": "integration",
+      "requirements": [
+        "REQ-PERSISTENCE",
+        "REQ-ATOMIC"
+      ]
     },
     "e2e": {
       "reason": "Deferred until the playable screen in M4."
@@ -38,7 +44,7 @@
       "reason": "No deployed infrastructure."
     },
     "trace": {
-      "reason": "No event pipeline until M3."
+      "reason": "Session resolution history is stored in SQLite; no external event pipeline."
     }
   }
 }

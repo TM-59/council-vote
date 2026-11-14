@@ -19,14 +19,62 @@ junit = folder / "unit-pytest.xml"
 mode = sys.argv[1]
 if mode not in {"test", "check"}:
     raise SystemExit("expected test or check")
-commands = [[sys.executable, "-m", "pytest", "-q", f"--junitxml={junit}"]]
+commands = [
+    [
+        sys.executable,
+        "-m",
+        "pytest",
+        "-q",
+        "-m",
+        "not integration",
+        f"--junitxml={junit}",
+    ]
+]
+test_suites = [
+    (
+        "unit",
+        commands[0],
+        junit,
+        [
+            "REQ-HEALTH",
+            "REQ-CORE",
+            "REQ-CHECK",
+            "REQ-VOTE",
+            "REQ-AGENDA",
+            "REQ-SEAT",
+            "REQ-COUNCIL",
+            "REQ-SESSION",
+            "REQ-USECASE",
+        ],
+    )
+]
 if mode == "check":
+    integration_junit = folder / "integration-pytest.xml"
+    integration_command = [
+        sys.executable,
+        "-m",
+        "pytest",
+        "-q",
+        "-m",
+        "integration",
+        f"--junitxml={integration_junit}",
+    ]
+    commands.append(integration_command)
+    test_suites.append(
+        (
+            "integration",
+            integration_command,
+            integration_junit,
+            ["REQ-PERSISTENCE", "REQ-ATOMIC"],
+        )
+    )
     commands += [
         ["ruff", "check", "."],
         ["ruff", "format", "--check", "."],
         ["mypy"],
         ["lint-imports", "--no-cache"],
         [sys.executable, "manage.py", "check"],
+        [sys.executable, "manage.py", "makemigrations", "--check", "--dry-run"],
     ]
 results = []
 durations = []
@@ -40,13 +88,28 @@ for command in commands:
     except subprocess.TimeoutExpired, OSError:
         results.append(124)
     durations.append(round(time.monotonic() - command_started, 3))
-counts = dict(tests=0, failures=0, errors=0, skipped=0)
-if junit.exists():
-    for case in ET.parse(junit).iter("testcase"):
-        counts["tests"] += 1
-        for node, key in [("failure", "failures"), ("error", "errors"), ("skipped", "skipped")]:
-            counts[key] += int(case.find(node) is not None)
-status = "pass" if not any(results) and counts["tests"] else "fail"
+suite_counts = []
+for _kind, _command, report, _requirements in test_suites:
+    counts = dict(tests=0, failures=0, errors=0, skipped=0)
+    if report.exists():
+        for case in ET.parse(report).iter("testcase"):
+            counts["tests"] += 1
+            for node, key in [
+                ("failure", "failures"),
+                ("error", "errors"),
+                ("skipped", "skipped"),
+            ]:
+                counts[key] += int(case.find(node) is not None)
+    suite_counts.append(counts)
+counts = {
+    key: sum(suite[key] for suite in suite_counts)
+    for key in ("tests", "failures", "errors", "skipped")
+}
+tests_pass = all(
+    results[index] == 0 and suite_counts[index]["tests"] for index in range(len(test_suites))
+)
+checks_pass = not any(results[len(test_suites) :])
+status = "pass" if tests_pass and checks_pass else "fail"
 git = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=True)
 dirty = subprocess.run(
     ["git", "status", "--porcelain"], capture_output=True, text=True, check=True
@@ -74,7 +137,7 @@ summary = dict(
         status="not_measured",
         line_percent=None,
         branch_percent=None,
-        reason="M1 scaffold; coverage measurement is deferred.",
+        reason="Coverage is not measured by this local runner.",
     ),
     metrics=[
         dict(
@@ -86,28 +149,21 @@ summary = dict(
             comparison="eq",
             reason="check timed out or failed to start" if code == 124 else None,
         )
-        for index, code in enumerate(results[1:], 1)
+        for index, code in enumerate(results[len(test_suites) :])
     ],
     suites=[
         dict(
-            kind="unit",
+            kind=kind,
             framework="pytest",
-            command=commands[0],
-            status="pass" if results[0] == 0 and counts["tests"] else "fail",
-            duration_seconds=durations[0],
-            counts=counts,
-            junit=str(junit) if junit.exists() else None,
-            requirements=[
-                "REQ-HEALTH",
-                "REQ-CORE",
-                "REQ-VOTE",
-                "REQ-AGENDA",
-                "REQ-SEAT",
-                "REQ-COUNCIL",
-                "REQ-SESSION",
-            ],
-            reason="unit process timed out or failed to start" if results[0] == 124 else None,
+            command=command,
+            status="pass" if results[index] == 0 and suite_counts[index]["tests"] else "fail",
+            duration_seconds=durations[index],
+            counts=suite_counts[index],
+            junit=str(report) if report.exists() else None,
+            requirements=requirements,
+            reason="test process timed out or failed to start" if results[index] == 124 else None,
         )
+        for index, (kind, command, report, requirements) in enumerate(test_suites)
     ],
 )
 text = json.dumps(summary, indent=2) + "\n"
