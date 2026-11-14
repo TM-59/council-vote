@@ -1,4 +1,4 @@
-# Requirements (M1 and M2)
+# Requirements (M1–M3)
 
 - REQ-HEALTH: GET /health/ returns status ok as JSON; other methods are rejected.
 - REQ-CORE: domain/application import without frameworks; adapters point inward.
@@ -14,3 +14,9 @@ M2, the pure domain (standard library only):
 - REQ-SEAT: a seat's public condition yields exactly one ballot; abstaining is checked first.
 - REQ-COUNCIL: a council has five distinct seats; the three fixed councils have 3, 2 and 2 passing agendas, found by enumeration.
 - REQ-SESSION: two attempts per council; approval advances and restores attempts; three approvals win; running out loses; finished sessions and invalid agendas change nothing.
+
+M3, application and persistence:
+
+- REQ-USECASE: start a session, resolve an agenda through the domain, and read a session without coupling the application to Django.
+- REQ-PERSISTENCE: SQLite stores the session state and complete resolution history; a fresh process can restore them.
+- REQ-ATOMIC: invalid agendas and finished sessions do not write; a concurrent stale update is rejected without overwriting the committed state.

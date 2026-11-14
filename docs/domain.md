@@ -3,7 +3,8 @@
 Council Vote is a single-player logic puzzle: choose an agenda's three binary
 clauses, predict five seats' public ballots and pass three councils in order.
 M2 implements this contract as a pure domain (`src/council_vote/domain/model.py`);
-storage and the screen follow in M3 and M4.
+M3 adds framework-independent use cases and SQLite persistence; the screen
+follows in M4.
 
 | Term | Meaning and planned model |
 | --- | --- |
@@ -105,11 +106,11 @@ site packages disabled. Core code must not bypass contracts with dynamic imports
 
 1. M1: vocabulary, empty core packages, health route and verification.
 2. M2 (done): values, aggregate, events, counter, fixed councils and pure rule tests.
-3. M3: start/resolve/read use cases, ORM repository, migrations and atomicity tests.
+3. M3 (done): start/resolve/read use cases, ORM repository, migrations and atomicity tests.
 4. M4: one browser screen, public conditions, complete playthrough and actual screenshot.
 
 Rules and architecture are project design choices, not claims mandated by Django.
-WASM, database models, migrations and playable screens are deferred.
+Playable screens are deferred.
 Official references checked 2026-11-06:
 
 - [Django settings](https://docs.djangoproject.com/en/6.1/topics/settings/)
