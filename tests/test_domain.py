@@ -52,6 +52,7 @@ COUNTING = [
 def test_req_vote_quorum_and_strict_majority(
     ballots: tuple[Ballot, ...], *, quorum: bool, approved: bool
 ) -> None:
+    """REQ-VOTE: the hand-written table of quorum and majority holds."""
     tally = VoteCounter.tally(ballots)
     assert (tally.yes, tally.no, tally.abstain) == tuple(ballots.count(b) for b in (Y, N, A))
     assert tally.has_quorum is quorum
@@ -59,6 +60,7 @@ def test_req_vote_quorum_and_strict_majority(
 
 
 def test_req_vote_every_split_of_five_follows_the_rule() -> None:
+    """REQ-VOTE: all 243 ordered ballots follow quorum and strict majority."""
     for ballots in product((Y, N, A), repeat=5):
         tally = VoteCounter.tally(ballots)
         yes, no = ballots.count(Y), ballots.count(N)
@@ -67,11 +69,13 @@ def test_req_vote_every_split_of_five_follows_the_rule() -> None:
 
 
 def test_req_vote_only_ballots_are_counted() -> None:
+    """REQ-VOTE: the counter refuses values that are not ballots."""
     with pytest.raises(NotABallotError):
         VoteCounter.tally(cast("list[Ballot]", [Y, "yes"]))
 
 
 def test_req_agenda_values_are_exact_and_immutable() -> None:
+    """REQ-AGENDA: eight distinct agendas, frozen, with boolean clauses only."""
     agendas = Agenda.all()
     assert len(agendas) == len(set(agendas)) == AGENDA_COUNT
     agenda = Agenda(lamps=True, gate=False, bell=True)
@@ -87,6 +91,7 @@ def test_req_agenda_values_are_exact_and_immutable() -> None:
 
 
 def test_req_seat_public_condition_decides_one_ballot() -> None:
+    """REQ-SEAT: a seat's public condition decides its single ballot."""
     seat = Seat("ferryman", ((Clause.GATE, True),), abstains_if=((Clause.BELL, True),))
     assert seat.vote(Agenda(lamps=False, gate=True, bell=False)) is Y
     assert seat.vote(Agenda(lamps=False, gate=False, bell=False)) is N
@@ -99,6 +104,7 @@ def test_req_seat_public_condition_decides_one_ballot() -> None:
 
 
 def test_req_council_five_distinct_seats() -> None:
+    """REQ-COUNCIL: a council has exactly five distinct seats."""
     seat = Seat("a", ())
     with pytest.raises(CouncilShapeError):
         Council("short", (seat,) * (SEATS_PER_COUNCIL - 1))
@@ -107,6 +113,7 @@ def test_req_council_five_distinct_seats() -> None:
 
 
 def test_req_council_fixed_councils_have_a_passing_agenda_but_not_every() -> None:
+    """REQ-COUNCIL: each fixed council passes some agendas and none passes all three."""
     assert [council.name for council in COUNCILS] == [
         "Harbour Wardens",
         "Night Watch",
@@ -138,6 +145,7 @@ def test_req_council_fixed_councils_have_a_passing_agenda_but_not_every() -> Non
 
 
 def test_req_council_ballots_are_deterministic() -> None:
+    """REQ-COUNCIL: the same agenda always gets the same five ballots."""
     for council in COUNCILS:
         for agenda in Agenda.all():
             assert council.ballots(agenda) == council.ballots(agenda)
@@ -153,6 +161,7 @@ REJECTED = Agenda(lamps=False, gate=False, bell=False)  # passes none of the thr
 
 
 def test_req_session_three_approvals_win() -> None:
+    """REQ-SESSION: three approvals in a row win the session."""
     session = CouncilSession("s1")
     assert (session.council, session.attempts_left, session.finished) == (
         0,
@@ -173,6 +182,7 @@ def test_req_session_three_approvals_win() -> None:
 
 
 def test_req_session_a_rejection_costs_an_attempt_and_approval_restores_them() -> None:
+    """REQ-SESSION: a rejection costs an attempt; moving on restores them."""
     session = CouncilSession("s2")
     (resolved,) = session.resolve(REJECTED)
     assert isinstance(resolved, AgendaResolved)
@@ -184,6 +194,7 @@ def test_req_session_a_rejection_costs_an_attempt_and_approval_restores_them() -
 
 
 def test_req_session_two_rejections_lose_and_repeats_are_allowed() -> None:
+    """REQ-SESSION: two rejections at one council lose; repeating an agenda is allowed."""
     session = CouncilSession("s3")
     session.resolve(REJECTED)
     events = session.resolve(REJECTED)  # the same agenda again consumes another attempt
@@ -194,6 +205,7 @@ def test_req_session_two_rejections_lose_and_repeats_are_allowed() -> None:
 
 
 def test_req_session_losing_at_the_last_council() -> None:
+    """REQ-SESSION: the session can be lost at the last council."""
     session = CouncilSession("s4")
     session.resolve(WINNING[0])
     session.resolve(WINNING[1])
@@ -204,6 +216,7 @@ def test_req_session_losing_at_the_last_council() -> None:
 
 @pytest.mark.parametrize("finish", [Outcome.WON, Outcome.LOST])
 def test_req_session_finished_sessions_reject_and_do_not_change(finish: Outcome) -> None:
+    """REQ-SESSION: a finished session refuses agendas and stays unchanged."""
     session = CouncilSession("s5")
     for agenda in WINNING if finish is Outcome.WON else (REJECTED, REJECTED):
         session.resolve(agenda)
@@ -216,6 +229,7 @@ def test_req_session_finished_sessions_reject_and_do_not_change(finish: Outcome)
 
 @pytest.mark.parametrize("bad", [None, "lamps", (True, True, True), 7])
 def test_req_session_invalid_agenda_changes_nothing(bad: object) -> None:
+    """REQ-SESSION: a proposal that is not an Agenda changes nothing."""
     session = CouncilSession("s6")
     session.resolve(REJECTED)
     before = copy.deepcopy(session)
@@ -225,6 +239,7 @@ def test_req_session_invalid_agenda_changes_nothing(bad: object) -> None:
 
 
 def test_req_session_identity_is_required_and_history_records_the_ballots() -> None:
+    """REQ-SESSION: identity and councils are required; history records each ballot."""
     with pytest.raises(MissingIdentityError):
         CouncilSession("")
     with pytest.raises(CouncilShapeError):
@@ -238,6 +253,7 @@ def test_req_session_identity_is_required_and_history_records_the_ballots() -> N
 
 
 def test_req_session_every_pair_of_first_moves_is_reproducible() -> None:
+    """REQ-SESSION: every pair of first moves replays to the same state."""
     for first, second in product(Agenda.all(), repeat=2):
         runs = []
         for _ in range(2):

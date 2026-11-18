@@ -24,23 +24,31 @@ def _new_session_id() -> str:
 
 
 class StartSession:
+    """Create a new session and store it."""
+
     def __init__(
         self, repository: SessionRepository, id_factory: Callable[[], str] = _new_session_id
     ) -> None:
+        """Use `repository` for storage and `id_factory` for new identities."""
         self.repository = repository
         self.id_factory = id_factory
 
     def execute(self) -> CouncilSession:
+        """Start a session at the first council and return it."""
         session = CouncilSession(self.id_factory())
         self.repository.add(session)
         return session
 
 
 class ResolveAgenda:
+    """Put an agenda to the sitting council of a stored session."""
+
     def __init__(self, repository: SessionRepository) -> None:
+        """Use `repository` to read and save sessions."""
         self.repository = repository
 
     def execute(self, session_id: str, agenda: Agenda) -> tuple[Event, ...]:
+        """Resolve `agenda` in the session and save it; return the events that happened."""
         snapshot = self.repository.get(session_id)
         if snapshot is None:
             raise SessionNotFoundError(session_id)
@@ -51,10 +59,14 @@ class ResolveAgenda:
 
 
 class ReadSession:
+    """Read a stored session."""
+
     def __init__(self, repository: SessionRepository) -> None:
+        """Use `repository` to read sessions."""
         self.repository = repository
 
     def execute(self, session_id: str) -> CouncilSession:
+        """Return the stored session with identity `session_id`."""
         snapshot = self.repository.get(session_id)
         if snapshot is None:
             raise SessionNotFoundError(session_id)

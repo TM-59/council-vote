@@ -1,3 +1,5 @@
+"""The Django repository against SQLite: persistence across processes and atomic saves."""
+
 import json
 import os
 import secrets
@@ -24,6 +26,7 @@ REJECTED = Agenda(lamps=False, gate=False, bell=False)
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_req_persistence_session_and_history_survive_a_process_restart() -> None:
+    """REQ-PERSISTENCE: another process reads the stored session and history."""
     use_cases = build_session_use_cases()
     session = use_cases.start.execute()
     use_cases.resolve.execute(session.session_id, WINNING[0])
@@ -71,6 +74,7 @@ def test_req_persistence_session_and_history_survive_a_process_restart() -> None
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_req_atomic_invalid_and_finished_resolutions_do_not_write() -> None:
+    """REQ-ATOMIC: refused resolutions leave the stored record unchanged."""
     repository = DjangoSessionRepository()
     use_cases = build_session_use_cases()
     session = use_cases.start.execute()
@@ -94,6 +98,7 @@ def test_req_atomic_invalid_and_finished_resolutions_do_not_write() -> None:
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
 def test_req_atomic_stale_competing_update_is_rejected_without_overwrite() -> None:
+    """REQ-ATOMIC: a stale save is refused and the first save is kept."""
     repository = DjangoSessionRepository()
     repository.add(CouncilSession("competing-session"))
     first = repository.get("competing-session")

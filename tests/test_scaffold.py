@@ -1,3 +1,5 @@
+"""The HTTP scaffold and the framework-free core."""
+
 import subprocess
 import sys
 from http import HTTPStatus
@@ -8,16 +10,19 @@ if TYPE_CHECKING:
 
 
 def test_req_health_get_returns_json(client: Client) -> None:
+    """REQ-HEALTH: GET /health/ answers JSON status ok."""
     response = client.get("/health/")
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {"status": "ok"}
 
 
 def test_req_health_rejects_post(client: Client) -> None:
+    """REQ-HEALTH: POST /health/ is not allowed."""
     assert client.post("/health/").status_code == HTTPStatus.METHOD_NOT_ALLOWED
 
 
 def test_req_core_imports_without_frameworks() -> None:
+    """REQ-CORE: domain and application import without site packages."""
     subprocess.run(
         [sys.executable, "-S", "-c", "import council_vote.domain, council_vote.application"],
         env={"PYTHONPATH": "src"},
@@ -27,4 +32,5 @@ def test_req_core_imports_without_frameworks() -> None:
 
 
 def test_req_health_unknown_route_is_not_implemented(client: Client) -> None:
+    """REQ-HEALTH: unknown routes answer 404."""
     assert client.get("/").status_code == HTTPStatus.NOT_FOUND

@@ -127,8 +127,11 @@ def _snapshot(record: SessionRecord) -> VersionedSession:
 
 
 class DjangoSessionRepository(SessionRepository):
+    """Session repository on the Django ORM, with optimistic versioning."""
+
     @transaction.atomic
     def add(self, session: CouncilSession) -> None:
+        """Insert the session as a new record at version 0."""
         SessionRecord.objects.create(
             session_id=session.session_id,
             council=session.council,
@@ -139,6 +142,7 @@ class DjangoSessionRepository(SessionRepository):
         )
 
     def get(self, session_id: str) -> VersionedSession | None:
+        """Return the stored session and its version, or None."""
         try:
             record = SessionRecord.objects.get(session_id=session_id)
         except SessionRecord.DoesNotExist:
@@ -147,6 +151,7 @@ class DjangoSessionRepository(SessionRepository):
 
     @transaction.atomic
     def save(self, snapshot: VersionedSession) -> bool:
+        """Update the record only if its version is unchanged; return whether it was."""
         session = snapshot.session
         updated = SessionRecord.objects.filter(
             session_id=session.session_id, version=snapshot.version

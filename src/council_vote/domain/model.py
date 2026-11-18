@@ -17,18 +17,24 @@ ATTEMPTS_PER_COUNCIL = 2
 
 
 class Clause(Enum):
+    """One of the three switches of an agenda."""
+
     LAMPS = "lamps"
     GATE = "gate"
     BELL = "bell"
 
 
 class Ballot(Enum):
+    """What one seat says about an agenda."""
+
     YES = "yes"
     NO = "no"
     ABSTAIN = "abstain"
 
 
 class Outcome(Enum):
+    """How a finished session ended."""
+
     WON = "won"
     LOST = "lost"
 
@@ -97,15 +103,18 @@ class Agenda:
     bell: bool
 
     def __post_init__(self) -> None:
+        """Refuse clause values that are not exactly True or False."""
         for name in ("lamps", "gate", "bell"):
             if type(getattr(self, name)) is not bool:
                 raise ClauseValueError(name)
 
     def enabled(self, clause: Clause) -> bool:
+        """Return whether `clause` is switched on."""
         return bool(getattr(self, clause.value))
 
     @staticmethod
     def all() -> tuple[Agenda, ...]:
+        """Return all eight agendas in a fixed order."""
         flags = (False, True)
         return tuple(
             Agenda(lamps, gate, bell) for lamps in flags for gate in flags for bell in flags
@@ -117,6 +126,7 @@ Requirement = tuple[tuple[Clause, bool], ...]
 
 
 def holds(requirement: Requirement, agenda: Agenda) -> bool:
+    """Return whether every clause state in `requirement` matches `agenda`."""
     return all(agenda.enabled(clause) is state for clause, state in requirement)
 
 
@@ -133,10 +143,12 @@ class Seat:
     abstains_if: Requirement | None = None
 
     def __post_init__(self) -> None:
+        """Refuse a seat without an identity."""
         if not self.seat_id:
             raise MissingIdentityError(SEAT)
 
     def vote(self, agenda: Agenda) -> Ballot:
+        """Return this seat's ballot: abstain first, otherwise yes or no."""
         if self.abstains_if is not None and holds(self.abstains_if, agenda):
             return Ballot.ABSTAIN
         return Ballot.YES if holds(self.yes_if, agenda) else Ballot.NO
@@ -155,20 +167,25 @@ class Seat:
 
 @dataclass(frozen=True, slots=True)
 class Tally:
+    """The count of yes, no and abstain ballots."""
+
     yes: int
     no: int
     abstain: int
 
     @property
     def participating(self) -> int:
+        """Seats that voted yes or no."""
         return self.yes + self.no
 
     @property
     def has_quorum(self) -> bool:
+        """Whether at least QUORUM seats took part."""
         return self.participating >= QUORUM
 
     @property
     def approved(self) -> bool:
+        """Whether the agenda passes: quorum and more yes than no."""
         return self.has_quorum and self.yes > self.no
 
 
@@ -177,6 +194,7 @@ class VoteCounter:
 
     @staticmethod
     def tally(ballots: Iterable[Ballot]) -> Tally:
+        """Count `ballots`; refuse anything that is not a Ballot."""
         cast = tuple(ballots)
         if any(not isinstance(ballot, Ballot) for ballot in cast):
             raise NotABallotError
@@ -195,6 +213,7 @@ class Council:
     seats: tuple[Seat, ...]
 
     def __post_init__(self) -> None:
+        """Refuse a council without five distinct seats."""
         if (
             len(self.seats) != SEATS_PER_COUNCIL
             or len({s.seat_id for s in self.seats}) != SEATS_PER_COUNCIL
@@ -202,14 +221,18 @@ class Council:
             raise CouncilShapeError(FIVE_DISTINCT_SEATS)
 
     def ballots(self, agenda: Agenda) -> tuple[Ballot, ...]:
+        """Return each seat's ballot on `agenda`, in seat order."""
         return tuple(seat.vote(agenda) for seat in self.seats)
 
     def passing_agendas(self) -> tuple[Agenda, ...]:
+        """Return the agendas this council approves, in Agenda.all() order."""
         return tuple(a for a in Agenda.all() if VoteCounter.tally(self.ballots(a)).approved)
 
 
 @dataclass(frozen=True, slots=True)
 class AgendaResolved:
+    """Event: an agenda was put to a council and counted."""
+
     council: int
     agenda: Agenda
     ballots: tuple[Ballot, ...]
@@ -219,6 +242,8 @@ class AgendaResolved:
 
 @dataclass(frozen=True, slots=True)
 class SessionEnded:
+    """Event: the session was won or lost."""
+
     outcome: Outcome
 
 
@@ -282,6 +307,7 @@ class CouncilSession:
     history: tuple[AgendaResolved, ...] = field(default=())
 
     def __post_init__(self) -> None:
+        """Refuse a session without an identity or without councils."""
         if not self.session_id:
             raise MissingIdentityError(SESSION)
         if not self.councils:
@@ -289,6 +315,7 @@ class CouncilSession:
 
     @property
     def finished(self) -> bool:
+        """Whether the session has an outcome."""
         return self.outcome is not None
 
     def resolve(self, agenda: Agenda) -> tuple[Event, ...]:

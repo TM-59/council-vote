@@ -8,12 +8,15 @@ from council_vote.infrastructure.repository import DjangoSessionRepository
 
 @dataclass(frozen=True, slots=True)
 class SessionUseCases:
+    """The three session use cases wired to one repository."""
+
     start: StartSession
     resolve: ResolveAgenda
     read: ReadSession
 
 
 def build_session_use_cases() -> SessionUseCases:
+    """Wire the use cases to the Django repository."""
     repository = DjangoSessionRepository()
     return SessionUseCases(
         start=StartSession(repository),
