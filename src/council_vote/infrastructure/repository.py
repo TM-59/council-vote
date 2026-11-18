@@ -42,7 +42,7 @@ def _encode_history(session: CouncilSession) -> list[dict[str, object]]:
 def _mapping(value: object) -> dict[str, object]:
     if not isinstance(value, dict) or not all(isinstance(key, str) for key in value):
         raise ValueError("invalid persisted session history")
-    return cast(dict[str, object], value)
+    return cast("dict[str, object]", value)
 
 
 def _sequence(value: object) -> list[object]:

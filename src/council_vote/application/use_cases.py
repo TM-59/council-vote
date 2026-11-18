@@ -1,11 +1,14 @@
 """Framework-independent session use cases."""
 
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from council_vote.domain import Agenda, CouncilSession, Event
 
-from .ports import SessionRepository
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from .ports import SessionRepository
 
 
 class SessionNotFound(Exception):

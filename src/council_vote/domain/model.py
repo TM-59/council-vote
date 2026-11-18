@@ -5,9 +5,12 @@ Standard library only. Nothing here knows about Django, storage or the screen.
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 QUORUM = 3
 ATTEMPTS_PER_COUNCIL = 2

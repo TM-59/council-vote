@@ -1,9 +1,10 @@
 """Persistence ports used by the application layer."""
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
-from council_vote.domain import CouncilSession
+if TYPE_CHECKING:
+    from council_vote.domain import CouncilSession
 
 
 @dataclass(frozen=True, slots=True)
