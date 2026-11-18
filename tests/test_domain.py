@@ -41,7 +41,7 @@ COUNTING = [
 
 @pytest.mark.parametrize(("ballots", "quorum", "approved"), COUNTING)
 def test_req_vote_quorum_and_strict_majority(
-    ballots: tuple[Ballot, ...], quorum: bool, approved: bool
+    ballots: tuple[Ballot, ...], *, quorum: bool, approved: bool
 ) -> None:
     tally = VoteCounter.tally(ballots)
     assert (tally.yes, tally.no, tally.abstain) == tuple(ballots.count(b) for b in (Y, N, A))
@@ -65,23 +65,23 @@ def test_req_vote_only_ballots_are_counted() -> None:
 def test_req_agenda_values_are_exact_and_immutable() -> None:
     agendas = Agenda.all()
     assert len(agendas) == len(set(agendas)) == 8
-    agenda = Agenda(True, False, True)
+    agenda = Agenda(lamps=True, gate=False, bell=True)
     assert agenda.enabled(Clause.LAMPS) and not agenda.enabled(Clause.GATE)
-    assert agenda == Agenda(True, False, True)
+    assert agenda == Agenda(lamps=True, gate=False, bell=True)
     with pytest.raises(AttributeError):
         agenda.lamps = False  # type: ignore[misc]
     for bad in (1, 0, "on", None):
         with pytest.raises(TypeError):
-            Agenda(bad, False, False)  # type: ignore[arg-type]
+            Agenda(lamps=bad, gate=False, bell=False)  # type: ignore[arg-type]
 
 
 def test_req_seat_public_condition_decides_one_ballot() -> None:
     seat = Seat("ferryman", ((Clause.GATE, True),), abstains_if=((Clause.BELL, True),))
-    assert seat.vote(Agenda(False, True, False)) is Y
-    assert seat.vote(Agenda(False, False, False)) is N
-    assert seat.vote(Agenda(False, True, True)) is A  # abstaining comes first
+    assert seat.vote(Agenda(lamps=False, gate=True, bell=False)) is Y
+    assert seat.vote(Agenda(lamps=False, gate=False, bell=False)) is N
+    assert seat.vote(Agenda(lamps=False, gate=True, bell=True)) is A  # abstaining comes first
     assert seat.condition() == "abstains if bell on; otherwise yes if gate on"
-    assert Seat("clerk", ()).vote(Agenda(False, False, False)) is Y
+    assert Seat("clerk", ()).vote(Agenda(lamps=False, gate=False, bell=False)) is Y
     assert Seat("clerk", ()).condition() == "always yes"
     with pytest.raises(ValueError):
         Seat("", ())
@@ -111,9 +111,15 @@ def test_req_council_fixed_councils_have_a_passing_agenda_but_not_every() -> Non
             if ballots.count(Y) + ballots.count(N) >= 3 and ballots.count(Y) > ballots.count(N):
                 found.append(agenda)
         assert tuple(found) == expected
-    assert Agenda(True, True, False) in passing[0]
-    assert passing[1] == (Agenda(False, False, True), Agenda(True, False, True))
-    assert passing[2] == (Agenda(False, True, True), Agenda(True, True, True))
+    assert Agenda(lamps=True, gate=True, bell=False) in passing[0]
+    assert passing[1] == (
+        Agenda(lamps=False, gate=False, bell=True),
+        Agenda(lamps=True, gate=False, bell=True),
+    )
+    assert passing[2] == (
+        Agenda(lamps=False, gate=True, bell=True),
+        Agenda(lamps=True, gate=True, bell=True),
+    )
     # no single agenda passes all three councils: the player must read each council
     assert not set(passing[0]) & set(passing[1]) & set(passing[2])
 
@@ -125,8 +131,12 @@ def test_req_council_ballots_are_deterministic() -> None:
             assert len(council.ballots(agenda)) == 5
 
 
-WINNING = (Agenda(True, True, False), Agenda(False, False, True), Agenda(False, True, True))
-REJECTED = Agenda(False, False, False)  # passes none of the three councils
+WINNING = (
+    Agenda(lamps=True, gate=True, bell=False),
+    Agenda(lamps=False, gate=False, bell=True),
+    Agenda(lamps=False, gate=True, bell=True),
+)
+REJECTED = Agenda(lamps=False, gate=False, bell=False)  # passes none of the three councils
 
 
 def test_req_session_three_approvals_win() -> None:

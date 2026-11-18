@@ -169,7 +169,7 @@ def main() -> None:
     refused = 0
     for bad in (1, 0, "on", None):
         try:
-            Agenda(bad, False, False)  # type: ignore[arg-type]
+            Agenda(lamps=bad, gate=False, bell=False)  # type: ignore[arg-type]
         except TypeError:
             refused += 1
     value(
@@ -317,7 +317,7 @@ def main() -> None:
 
     # S07: resolve
     session = CouncilSession("s")
-    session.resolve(Agenda(False, False, False))
+    session.resolve(Agenda(lamps=False, gate=False, bell=False))
     value(
         "attempt-cost",
         "attempts left after one rejected agenda (theory 1)",
@@ -332,8 +332,8 @@ def main() -> None:
         2,
     )
     lost = CouncilSession("l")
-    lost.resolve(Agenda(False, False, False))
-    events = lost.resolve(Agenda(False, False, False))
+    lost.resolve(Agenda(lamps=False, gate=False, bell=False))
+    events = lost.resolve(Agenda(lamps=False, gate=False, bell=False))
     value(
         "events-on-loss",
         "events returned by the losing resolution (theory 2: AgendaResolved, SessionEnded)",

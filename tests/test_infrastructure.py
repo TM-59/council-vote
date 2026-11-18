@@ -11,8 +11,12 @@ from council_vote.composition.session import build_session_use_cases
 from council_vote.domain import Agenda, CouncilSession, SessionFinishedError
 from council_vote.infrastructure.repository import DjangoSessionRepository
 
-WINNING = (Agenda(True, True, False), Agenda(False, False, True), Agenda(False, True, True))
-REJECTED = Agenda(False, False, False)
+WINNING = (
+    Agenda(lamps=True, gate=True, bell=False),
+    Agenda(lamps=False, gate=False, bell=True),
+    Agenda(lamps=False, gate=True, bell=True),
+)
+REJECTED = Agenda(lamps=False, gate=False, bell=False)
 
 
 @pytest.mark.integration

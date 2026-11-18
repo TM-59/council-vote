@@ -13,7 +13,11 @@ from council_vote.application.use_cases import (
 )
 from council_vote.domain import Agenda, CouncilSession, SessionFinishedError
 
-WINNING = (Agenda(True, True, False), Agenda(False, False, True), Agenda(False, True, True))
+WINNING = (
+    Agenda(lamps=True, gate=True, bell=False),
+    Agenda(lamps=False, gate=False, bell=True),
+    Agenda(lamps=False, gate=True, bell=True),
+)
 
 
 @dataclass
@@ -66,7 +70,7 @@ def test_req_usecase_missing_and_conflicting_sessions_are_explicit() -> None:
 
 
 @pytest.mark.parametrize("finish", [True, False])
-def test_req_usecase_finished_or_invalid_resolution_does_not_save(finish: bool) -> None:
+def test_req_usecase_finished_or_invalid_resolution_does_not_save(*, finish: bool) -> None:
     repository = MemorySessionRepository()
     session = StartSession(repository, id_factory=lambda: "session-3").execute()
     resolve = ResolveAgenda(repository)
