@@ -1,5 +1,6 @@
 import copy
 from dataclasses import dataclass, field
+from typing import cast
 
 import pytest
 
@@ -11,7 +12,13 @@ from council_vote.application.use_cases import (
     SessionNotFoundError,
     StartSession,
 )
-from council_vote.domain import Agenda, CouncilSession, SessionFinishedError
+from council_vote.domain import (
+    ATTEMPTS_PER_COUNCIL,
+    Agenda,
+    CouncilSession,
+    NotAnAgendaError,
+    SessionFinishedError,
+)
 
 WINNING = (
     Agenda(lamps=True, gate=True, bell=False),
@@ -54,7 +61,7 @@ def test_req_usecase_start_resolve_and_read_use_the_repository_port() -> None:
     assert session.session_id == "session-1"
     assert len(events) == 1
     assert restored.council == 1
-    assert restored.attempts_left == 2
+    assert restored.attempts_left == ATTEMPTS_PER_COUNCIL
     assert restored.history[0].agenda == WINNING[0]
 
 
@@ -84,7 +91,7 @@ def test_req_usecase_finished_or_invalid_resolution_does_not_save(*, finish: boo
     else:
         before = repository.get(session.session_id)
         assert before is not None
-        with pytest.raises(TypeError):
-            resolve.execute(session.session_id, None)  # type: ignore[arg-type]
+        with pytest.raises(NotAnAgendaError):
+            resolve.execute(session.session_id, cast("Agenda", None))
     after = repository.get(session.session_id)
     assert before == after

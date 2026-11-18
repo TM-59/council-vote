@@ -1,5 +1,6 @@
 import subprocess
 import sys
+from http import HTTPStatus
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -8,12 +9,12 @@ if TYPE_CHECKING:
 
 def test_req_health_get_returns_json(client: Client) -> None:
     response = client.get("/health/")
-    assert response.status_code == 200
+    assert response.status_code == HTTPStatus.OK
     assert response.json() == {"status": "ok"}
 
 
 def test_req_health_rejects_post(client: Client) -> None:
-    assert client.post("/health/").status_code == 405
+    assert client.post("/health/").status_code == HTTPStatus.METHOD_NOT_ALLOWED
 
 
 def test_req_core_imports_without_frameworks() -> None:
@@ -26,4 +27,4 @@ def test_req_core_imports_without_frameworks() -> None:
 
 
 def test_req_health_unknown_route_is_not_implemented(client: Client) -> None:
-    assert client.get("/").status_code == 404
+    assert client.get("/").status_code == HTTPStatus.NOT_FOUND

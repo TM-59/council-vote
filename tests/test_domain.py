@@ -2,18 +2,26 @@
 
 import copy
 from itertools import product
+from typing import cast
 
 import pytest
 
 from council_vote.domain import (
     ATTEMPTS_PER_COUNCIL,
     COUNCILS,
+    QUORUM,
+    SEATS_PER_COUNCIL,
     Agenda,
     AgendaResolved,
     Ballot,
     Clause,
+    ClauseValueError,
     Council,
     CouncilSession,
+    CouncilShapeError,
+    MissingIdentityError,
+    NotABallotError,
+    NotAnAgendaError,
     Outcome,
     Seat,
     SessionEnded,
@@ -23,6 +31,7 @@ from council_vote.domain import (
 )
 
 Y, N, A = Ballot.YES, Ballot.NO, Ballot.ABSTAIN
+AGENDA_COUNT = 2**3  # three clauses, each on or off
 
 # Independent table: ballots -> (quorum, approved). Written by hand, not derived from the code.
 COUNTING = [
@@ -53,26 +62,28 @@ def test_req_vote_every_split_of_five_follows_the_rule() -> None:
     for ballots in product((Y, N, A), repeat=5):
         tally = VoteCounter.tally(ballots)
         yes, no = ballots.count(Y), ballots.count(N)
-        assert tally.approved is (yes + no >= 3 and yes > no)
-        assert tally.yes + tally.no + tally.abstain == 5
+        assert tally.approved is (yes + no >= QUORUM and yes > no)
+        assert tally.yes + tally.no + tally.abstain == SEATS_PER_COUNCIL
 
 
 def test_req_vote_only_ballots_are_counted() -> None:
-    with pytest.raises(TypeError):
-        VoteCounter.tally([Y, "yes"])  # type: ignore[list-item]
+    with pytest.raises(NotABallotError):
+        VoteCounter.tally(cast("list[Ballot]", [Y, "yes"]))
 
 
 def test_req_agenda_values_are_exact_and_immutable() -> None:
     agendas = Agenda.all()
-    assert len(agendas) == len(set(agendas)) == 8
+    assert len(agendas) == len(set(agendas)) == AGENDA_COUNT
     agenda = Agenda(lamps=True, gate=False, bell=True)
-    assert agenda.enabled(Clause.LAMPS) and not agenda.enabled(Clause.GATE)
+    assert agenda.enabled(Clause.LAMPS)
+    assert not agenda.enabled(Clause.GATE)
     assert agenda == Agenda(lamps=True, gate=False, bell=True)
+    clause = "lamps"
     with pytest.raises(AttributeError):
-        agenda.lamps = False  # type: ignore[misc]
+        setattr(agenda, clause, False)  # a frozen value cannot be reassigned
     for bad in (1, 0, "on", None):
-        with pytest.raises(TypeError):
-            Agenda(lamps=bad, gate=False, bell=False)  # type: ignore[arg-type]
+        with pytest.raises(ClauseValueError):
+            Agenda(lamps=cast("bool", bad), gate=False, bell=False)
 
 
 def test_req_seat_public_condition_decides_one_ballot() -> None:
@@ -83,16 +94,16 @@ def test_req_seat_public_condition_decides_one_ballot() -> None:
     assert seat.condition() == "abstains if bell on; otherwise yes if gate on"
     assert Seat("clerk", ()).vote(Agenda(lamps=False, gate=False, bell=False)) is Y
     assert Seat("clerk", ()).condition() == "always yes"
-    with pytest.raises(ValueError):
+    with pytest.raises(MissingIdentityError):
         Seat("", ())
 
 
 def test_req_council_five_distinct_seats() -> None:
     seat = Seat("a", ())
-    with pytest.raises(ValueError):
-        Council("short", (seat,) * 4)
-    with pytest.raises(ValueError):
-        Council("twins", (seat,) * 5)
+    with pytest.raises(CouncilShapeError):
+        Council("short", (seat,) * (SEATS_PER_COUNCIL - 1))
+    with pytest.raises(CouncilShapeError):
+        Council("twins", (seat,) * SEATS_PER_COUNCIL)
 
 
 def test_req_council_fixed_councils_have_a_passing_agenda_but_not_every() -> None:
@@ -108,7 +119,9 @@ def test_req_council_fixed_councils_have_a_passing_agenda_but_not_every() -> Non
         found = []
         for agenda in Agenda.all():
             ballots = [seat.vote(agenda) for seat in council.seats]
-            if ballots.count(Y) + ballots.count(N) >= 3 and ballots.count(Y) > ballots.count(N):
+            if ballots.count(Y) + ballots.count(N) >= QUORUM and ballots.count(Y) > ballots.count(
+                N
+            ):
                 found.append(agenda)
         assert tuple(found) == expected
     assert Agenda(lamps=True, gate=True, bell=False) in passing[0]
@@ -128,7 +141,7 @@ def test_req_council_ballots_are_deterministic() -> None:
     for council in COUNCILS:
         for agenda in Agenda.all():
             assert council.ballots(agenda) == council.ballots(agenda)
-            assert len(council.ballots(agenda)) == 5
+            assert len(council.ballots(agenda)) == SEATS_PER_COUNCIL
 
 
 WINNING = (
@@ -147,19 +160,23 @@ def test_req_session_three_approvals_win() -> None:
         False,
     )
     events = session.resolve(WINNING[0])
-    assert len(events) == 1 and isinstance(events[0], AgendaResolved) and events[0].approved
+    assert len(events) == 1
+    assert isinstance(events[0], AgendaResolved)
+    assert events[0].approved
     assert (session.council, session.attempts_left) == (1, 2)
     session.resolve(WINNING[1])
     events = session.resolve(WINNING[2])
     assert events[-1] == SessionEnded(Outcome.WON)
-    assert session.outcome is Outcome.WON and len(session.history) == 3
+    assert session.outcome is Outcome.WON
+    assert len(session.history) == len(COUNCILS)
     assert [resolved.council for resolved in session.history] == [0, 1, 2]
 
 
 def test_req_session_a_rejection_costs_an_attempt_and_approval_restores_them() -> None:
     session = CouncilSession("s2")
     (resolved,) = session.resolve(REJECTED)
-    assert isinstance(resolved, AgendaResolved) and not resolved.approved
+    assert isinstance(resolved, AgendaResolved)
+    assert not resolved.approved
     assert resolved.tally == Tally(yes=1, no=3, abstain=1)
     assert (session.council, session.attempts_left, session.finished) == (0, 1, False)
     session.resolve(WINNING[0])
@@ -171,8 +188,9 @@ def test_req_session_two_rejections_lose_and_repeats_are_allowed() -> None:
     session.resolve(REJECTED)
     events = session.resolve(REJECTED)  # the same agenda again consumes another attempt
     assert events[-1] == SessionEnded(Outcome.LOST)
-    assert session.outcome is Outcome.LOST and session.attempts_left == 0
-    assert len(session.history) == 2
+    assert session.outcome is Outcome.LOST
+    assert session.attempts_left == 0
+    assert len(session.history) == ATTEMPTS_PER_COUNCIL
 
 
 def test_req_session_losing_at_the_last_council() -> None:
@@ -181,7 +199,7 @@ def test_req_session_losing_at_the_last_council() -> None:
     session.resolve(WINNING[1])
     session.resolve(REJECTED)
     assert session.resolve(REJECTED)[-1] == SessionEnded(Outcome.LOST)
-    assert session.council == 2
+    assert session.council == len(COUNCILS) - 1
 
 
 @pytest.mark.parametrize("finish", [Outcome.WON, Outcome.LOST])
@@ -201,20 +219,21 @@ def test_req_session_invalid_agenda_changes_nothing(bad: object) -> None:
     session = CouncilSession("s6")
     session.resolve(REJECTED)
     before = copy.deepcopy(session)
-    with pytest.raises(TypeError):
-        session.resolve(bad)  # type: ignore[arg-type]
+    with pytest.raises(NotAnAgendaError):
+        session.resolve(cast("Agenda", bad))
     assert session == before
 
 
 def test_req_session_identity_is_required_and_history_records_the_ballots() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(MissingIdentityError):
         CouncilSession("")
-    with pytest.raises(ValueError):
+    with pytest.raises(CouncilShapeError):
         CouncilSession("s", councils=())
     session = CouncilSession("s7")
     (resolved,) = session.resolve(WINNING[0])
     assert isinstance(resolved, AgendaResolved)
-    assert resolved.ballots == (Y, Y, Y, Y, Y) and resolved.agenda == WINNING[0]
+    assert resolved.ballots == (Y, Y, Y, Y, Y)
+    assert resolved.agenda == WINNING[0]
     assert session.history == (resolved,)
 
 
