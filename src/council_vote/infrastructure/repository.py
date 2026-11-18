@@ -18,6 +18,24 @@ from council_vote.domain import (
 from .models import SessionRecord
 
 
+HISTORY = "history"
+NUMBER = "number"
+TEXT = "text"
+FLAG = "flag"
+
+
+class PersistedSessionError(TypeError, ValueError):
+    """A stored session record does not have the shape the repository wrote.
+
+    It is a ValueError (the stored value is wrong) and a TypeError (the value has the
+    wrong type), so callers that caught either keep working.
+    """
+
+    def __init__(self, what: str) -> None:
+        """Name the part of the record that is invalid."""
+        super().__init__(f"invalid persisted session {what}")
+
+
 def _encode_history(session: CouncilSession) -> list[dict[str, object]]:
     return [
         {
@@ -41,31 +59,31 @@ def _encode_history(session: CouncilSession) -> list[dict[str, object]]:
 
 def _mapping(value: object) -> dict[str, object]:
     if not isinstance(value, dict) or not all(isinstance(key, str) for key in value):
-        raise ValueError("invalid persisted session history")
+        raise PersistedSessionError(HISTORY)
     return cast("dict[str, object]", value)
 
 
 def _sequence(value: object) -> list[object]:
     if not isinstance(value, list):
-        raise ValueError("invalid persisted session history")
+        raise PersistedSessionError(HISTORY)
     return value
 
 
 def _integer(value: object) -> int:
     if type(value) is not int:
-        raise ValueError("invalid persisted session number")
+        raise PersistedSessionError(NUMBER)
     return value
 
 
 def _text(value: object) -> str:
     if not isinstance(value, str):
-        raise ValueError("invalid persisted session text")
+        raise PersistedSessionError(TEXT)
     return value
 
 
 def _boolean(value: object) -> bool:
     if type(value) is not bool:
-        raise ValueError("invalid persisted session flag")
+        raise PersistedSessionError(FLAG)
     return value
 
 

@@ -33,8 +33,59 @@ class Outcome(Enum):
     LOST = "lost"
 
 
+SEATS_PER_COUNCIL = 5
+FIVE_DISTINCT_SEATS = "a council has five distinct seats"
+AT_LEAST_ONE_COUNCIL = "a session needs at least one council"
+SEAT = "seat"
+SESSION = "session"
+
+
 class SessionFinishedError(Exception):
     """A finished session accepts no further agenda."""
+
+    def __init__(self) -> None:
+        """Explain that the session is over."""
+        super().__init__("the session is over")
+
+
+class ClauseValueError(TypeError):
+    """A clause flag is not exactly True or False."""
+
+    def __init__(self, name: str) -> None:
+        """Name the clause that holds the wrong value."""
+        super().__init__(f"clause {name} must be True or False")
+
+
+class NotABallotError(TypeError):
+    """Something other than a Ballot was put to the counter."""
+
+    def __init__(self) -> None:
+        """Explain that only ballots are counted."""
+        super().__init__("only ballots can be counted")
+
+
+class NotAnAgendaError(TypeError):
+    """A proposal that is not an Agenda was put to the council."""
+
+    def __init__(self) -> None:
+        """Explain that an agenda of three clauses is required."""
+        super().__init__("an agenda of three clauses is required")
+
+
+class MissingIdentityError(ValueError):
+    """A seat or a session was created without an identity."""
+
+    def __init__(self, what: str) -> None:
+        """Name what needs the identity (a seat or a session)."""
+        super().__init__(f"a {what} needs an identity")
+
+
+class CouncilShapeError(ValueError):
+    """A council does not have five distinct seats, or a session has no council."""
+
+    def __init__(self, message: str) -> None:
+        """Keep the message that says which shape rule failed."""
+        super().__init__(message)
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,7 +99,7 @@ class Agenda:
     def __post_init__(self) -> None:
         for name in ("lamps", "gate", "bell"):
             if type(getattr(self, name)) is not bool:
-                raise TypeError(f"clause {name} must be True or False")
+                raise ClauseValueError(name)
 
     def enabled(self, clause: Clause) -> bool:
         return bool(getattr(self, clause.value))
@@ -83,7 +134,7 @@ class Seat:
 
     def __post_init__(self) -> None:
         if not self.seat_id:
-            raise ValueError("a seat needs an identity")
+            raise MissingIdentityError(SEAT)
 
     def vote(self, agenda: Agenda) -> Ballot:
         if self.abstains_if is not None and holds(self.abstains_if, agenda):
@@ -128,7 +179,7 @@ class VoteCounter:
     def tally(ballots: Iterable[Ballot]) -> Tally:
         cast = tuple(ballots)
         if any(not isinstance(ballot, Ballot) for ballot in cast):
-            raise TypeError("only ballots can be counted")
+            raise NotABallotError
         return Tally(
             yes=sum(ballot is Ballot.YES for ballot in cast),
             no=sum(ballot is Ballot.NO for ballot in cast),
@@ -144,8 +195,11 @@ class Council:
     seats: tuple[Seat, ...]
 
     def __post_init__(self) -> None:
-        if len(self.seats) != 5 or len({seat.seat_id for seat in self.seats}) != 5:
-            raise ValueError("a council has five distinct seats")
+        if (
+            len(self.seats) != SEATS_PER_COUNCIL
+            or len({s.seat_id for s in self.seats}) != SEATS_PER_COUNCIL
+        ):
+            raise CouncilShapeError(FIVE_DISTINCT_SEATS)
 
     def ballots(self, agenda: Agenda) -> tuple[Ballot, ...]:
         return tuple(seat.vote(agenda) for seat in self.seats)
@@ -229,9 +283,9 @@ class CouncilSession:
 
     def __post_init__(self) -> None:
         if not self.session_id:
-            raise ValueError("a session needs an identity")
+            raise MissingIdentityError(SESSION)
         if not self.councils:
-            raise ValueError("a session needs at least one council")
+            raise CouncilShapeError(AT_LEAST_ONE_COUNCIL)
 
     @property
     def finished(self) -> bool:
@@ -243,9 +297,9 @@ class CouncilSession:
         Nothing changes when the session is finished or the agenda is not an Agenda.
         """
         if self.finished:
-            raise SessionFinishedError("the session is over")
+            raise SessionFinishedError
         if not isinstance(agenda, Agenda):
-            raise TypeError("an agenda of three clauses is required")
+            raise NotAnAgendaError
         sitting = self.councils[self.council]
         ballots = sitting.ballots(agenda)
         tally = VoteCounter.tally(ballots)
