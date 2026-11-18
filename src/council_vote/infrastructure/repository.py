@@ -17,7 +17,6 @@ from council_vote.domain import (
 
 from .models import SessionRecord
 
-
 HISTORY = "history"
 NUMBER = "number"
 TEXT = "text"
@@ -121,7 +120,7 @@ def _snapshot(record: SessionRecord) -> VersionedSession:
             session_id=record.session_id,
             council=record.council,
             attempts_left=record.attempts_left,
-            outcome=Outcome(record.outcome) if record.outcome is not None else None,
+            outcome=Outcome(record.outcome) if record.outcome else None,
             history=_decode_history(record.history),
         ),
     )
@@ -134,7 +133,7 @@ class DjangoSessionRepository(SessionRepository):
             session_id=session.session_id,
             council=session.council,
             attempts_left=session.attempts_left,
-            outcome=session.outcome.value if session.outcome is not None else None,
+            outcome=session.outcome.value if session.outcome is not None else "",
             history=_encode_history(session),
             version=0,
         )
@@ -154,7 +153,7 @@ class DjangoSessionRepository(SessionRepository):
         ).update(
             council=session.council,
             attempts_left=session.attempts_left,
-            outcome=session.outcome.value if session.outcome is not None else None,
+            outcome=session.outcome.value if session.outcome is not None else "",
             history=_encode_history(session),
             version=F("version") + 1,
         )

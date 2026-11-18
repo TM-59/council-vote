@@ -142,7 +142,7 @@ class Seat:
         return Ballot.YES if holds(self.yes_if, agenda) else Ballot.NO
 
     def condition(self) -> str:
-        """The public condition in words, as the screen will show it."""
+        """Return the public condition in words, as the screen will show it."""
 
         def words(requirement: Requirement) -> str:
             return " and ".join(f"{c.value} {'on' if s else 'off'}" for c, s in requirement)
