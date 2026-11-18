@@ -32,6 +32,6 @@ The last column is the relative error; where the theory column is 0 it is the ab
 | `attempt-cost` | attempts left after one rejected agenda (theory 1) | 1 | 1 | 0.00e+00 |
 | `attempt-restored` | attempts left after an approval moves to the next council (theory 2) | 2 | 2 | 0.00e+00 |
 | `events-on-loss` | events returned by the losing resolution (theory 2: AgendaResolved, SessionEnded) | 2 | 2 | 0.00e+00 |
-| `finished-refuses` | a finished session raises SessionFinished (theory 1) | 1 | 1 | 0.00e+00 |
+| `finished-refuses` | a finished session raises SessionFinishedError (theory 1) | 1 | 1 | 0.00e+00 |
 | `finished-history` | resolutions recorded after that refusal (theory 2: nothing was added) | 2 | 2 | 0.00e+00 |
 | `invalid-free` | attempts left after a proposal that is not an Agenda (theory 2: none consumed) | 2 | 2 | 0.00e+00 |

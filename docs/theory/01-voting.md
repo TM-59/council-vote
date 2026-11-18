@@ -77,9 +77,9 @@ classDiagram
     CouncilSession ..> SessionEnded : emits
 ```
 
-**Code.** `src/council_vote/domain/model.py`: `Clause`, `Agenda`, `Ballot`, `Seat`, `Council`, `Tally`, `VoteCounter`, `CouncilSession`, `AgendaResolved`, `SessionEnded`, the union `Event`, `Outcome`, the exception `SessionFinished`, and the constants `QUORUM` = 3, `ATTEMPTS_PER_COUNCIL` = 2 and `COUNCILS`.
+**Code.** `src/council_vote/domain/model.py`: `Clause`, `Agenda`, `Ballot`, `Seat`, `Council`, `Tally`, `VoteCounter`, `CouncilSession`, `AgendaResolved`, `SessionEnded`, the union `Event`, `Outcome`, the exception `SessionFinishedError`, and the constants `QUORUM` = 3, `ATTEMPTS_PER_COUNCIL` = 2 and `COUNCILS`.
 
-**Tests.** `test_REQ_SESSION_identity_is_required_and_history_records_the_ballots` in `tests/test_domain.py` builds these objects and compares them by value.
+**Tests.** `test_req_session_identity_is_required_and_history_records_the_ballots` in `tests/test_domain.py` builds these objects and compares them by value.
 
 ## S02 — An agenda: three switches, eight possibilities
 
@@ -99,7 +99,7 @@ flowchart LR
 
 **Code.** `Agenda.__post_init__`, `Agenda.enabled` and `Agenda.all` in `src/council_vote/domain/model.py`.
 
-**Tests.** `test_REQ_AGENDA_values_are_exact_and_immutable`. Measured: `agendas` = 8; `agenda-rejected` = 4 of 4 non-boolean values.
+**Tests.** `test_req_agenda_values_are_exact_and_immutable`. Measured: `agendas` = 8; `agenda-rejected` = 4 of 4 non-boolean values.
 
 ## S03 — A seat's public condition decides its ballot
 
@@ -126,7 +126,7 @@ flowchart TD
 
 **Code.** `Seat.vote`, `Seat.condition` (the wording shown to the player) and the helper `holds` in `src/council_vote/domain/model.py`.
 
-**Tests.** `test_REQ_SEAT_public_condition_decides_one_ballot`, `test_REQ_COUNCIL_ballots_are_deterministic`. Measured over the `seats` = 15 seats and 8 agendas: always one ballot (`seat-one-ballot` = 1); `seat-abstainers` = 8 seats can abstain; whenever the abstaining requirement holds the ballot is an abstention (`seat-abstain-first` = 0 exceptions).
+**Tests.** `test_req_seat_public_condition_decides_one_ballot`, `test_req_council_ballots_are_deterministic`. Measured over the `seats` = 15 seats and 8 agendas: always one ballot (`seat-one-ballot` = 1); `seat-abstainers` = 8 seats can abstain; whenever the abstaining requirement holds the ballot is an abstention (`seat-abstain-first` = 0 exceptions).
 
 ## S04 — Counting: quorum and a strict majority
 
@@ -144,7 +144,7 @@ Abstentions count for neither. A tie is rejected. Two yes with three abstentions
 
 **Code.** `VoteCounter.tally`, `Tally.participating`, `Tally.has_quorum`, `Tally.approved` in `src/council_vote/domain/model.py`.
 
-**Tests.** `test_REQ_VOTE_quorum_and_strict_majority` (a hand-written table of ten cases) and `test_REQ_VOTE_every_split_of_five_follows_the_rule`. Measured over all `count-splits` = 243 ways five seats can vote: the counter never disagrees with the rule (`count-rule` = 0) and approves `count-approved` = 81 of them; `count-tie` = 0, `count-no-quorum` = 0, `count-three-one` = 1.
+**Tests.** `test_req_vote_quorum_and_strict_majority` (a hand-written table of ten cases) and `test_req_vote_every_split_of_five_follows_the_rule`. Measured over all `count-splits` = 243 ways five seats can vote: the counter never disagrees with the rule (`count-rule` = 0) and approves `count-approved` = 81 of them; `count-tie` = 0, `count-no-quorum` = 0, `count-three-one` = 1.
 
 ## S05 — The three councils
 
@@ -162,7 +162,7 @@ Abstentions count for neither. A tie is rejected. Two yes with three abstentions
 
 **Code.** `COUNCILS`, `Council.ballots` and `Council.passing_agendas` in `src/council_vote/domain/model.py`.
 
-**Tests.** `test_REQ_COUNCIL_fixed_councils_have_a_passing_agenda_but_not_every` (enumerated independently of `passing_agendas`), `test_REQ_COUNCIL_five_distinct_seats`. Measured: `council-1-passing` = 3, `council-2-passing` = 2, `council-3-passing` = 2, `council-common` = 0.
+**Tests.** `test_req_council_fixed_councils_have_a_passing_agenda_but_not_every` (enumerated independently of `passing_agendas`), `test_req_council_five_distinct_seats`. Measured: `council-1-passing` = 3, `council-2-passing` = 2, `council-3-passing` = 2, `council-common` = 0.
 
 ## References
 

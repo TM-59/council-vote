@@ -35,7 +35,7 @@ stateDiagram-v2
 
 **Code.** `CouncilSession.resolve` and `CouncilSession.finished` in `src/council_vote/domain/model.py`; `ATTEMPTS_PER_COUNCIL`.
 
-**Tests.** `test_REQ_SESSION_three_approvals_win`, `test_REQ_SESSION_a_rejection_costs_an_attempt_and_approval_restores_them`, `test_REQ_SESSION_two_rejections_lose_and_repeats_are_allowed`, `test_REQ_SESSION_losing_at_the_last_council`. Measured: `attempt-cost` = 1 attempt left after a rejection, `attempt-restored` = 2 after an approval; all `play-plans` = 262 144 plans of six agendas end in a finished session (`play-all-finish`).
+**Tests.** `test_req_session_three_approvals_win`, `test_req_session_a_rejection_costs_an_attempt_and_approval_restores_them`, `test_req_session_two_rejections_lose_and_repeats_are_allowed`, `test_req_session_losing_at_the_last_council`. Measured: `attempt-cost` = 1 attempt left after a rejection, `attempt-restored` = 2 after an approval; all `play-plans` = 262 144 plans of six agendas end in a finished session (`play-all-finish`).
 
 ## S07 — One proposal: validate, vote, count, record
 
@@ -53,7 +53,7 @@ sequenceDiagram
     participant V as VoteCounter
     P->>S: resolve(agenda)
     alt session finished
-        S-->>P: SessionFinished (nothing changed)
+        S-->>P: SessionFinishedError (nothing changed)
     else not an Agenda
         S-->>P: TypeError (no attempt consumed)
     else
@@ -68,7 +68,7 @@ sequenceDiagram
 
 **Code.** `CouncilSession.resolve` and the dataclasses `AgendaResolved` and `SessionEnded` in `src/council_vote/domain/model.py`.
 
-**Tests.** `test_REQ_SESSION_finished_sessions_reject_and_do_not_change` and `test_REQ_SESSION_invalid_agenda_changes_nothing` (the session equals a deep copy taken before). Measured: the losing resolution returns `events-on-loss` = 2 events; a finished session refuses (`finished-refuses` = 1) and its history stays at `finished-history` = 2; a proposal that is not an Agenda leaves `invalid-free` = 2 attempts.
+**Tests.** `test_req_session_finished_sessions_reject_and_do_not_change` and `test_req_session_invalid_agenda_changes_nothing` (the session equals a deep copy taken before). Measured: the losing resolution returns `events-on-loss` = 2 events; a finished session refuses (`finished-refuses` = 1) and its history stays at `finished-history` = 2; a proposal that is not an Agenda leaves `invalid-free` = 2 attempts.
 
 ## S08 — Nothing is random: guessing loses, reading wins
 
@@ -86,7 +86,7 @@ where $p_k$ is the fraction of agendas that pass council $k$ (S05). A player who
 
 **Code.** `Council.ballots` (no state, no random number) and `CouncilSession.resolve` in `src/council_vote/domain/model.py`.
 
-**Tests.** `test_REQ_SESSION_every_pair_of_first_moves_is_reproducible`, `test_REQ_COUNCIL_ballots_are_deterministic`. Measured: `play-win-chance` = 0.11663818, equal to the formula to 8 digits; `play-lost-1` = 102 400, `play-lost-2` = 89 856, `play-lost-3` = 39 312, `play-won` = 30 576; the informed player wins in three (`play-informed` = 1).
+**Tests.** `test_req_session_every_pair_of_first_moves_is_reproducible`, `test_req_council_ballots_are_deterministic`. Measured: `play-win-chance` = 0.11663818, equal to the formula to 8 digits; `play-lost-1` = 102 400, `play-lost-2` = 89 856, `play-lost-3` = 39 312, `play-won` = 30 576; the informed player wins in three (`play-informed` = 1).
 
 ## S09 — The rules do not know about Django
 
@@ -115,7 +115,7 @@ flowchart TD
 
 **Code.** The two Import Linter contracts in `pyproject.toml` (`Adapters point inward and remain independent`, `Core excludes Django and direct database access`); `SessionRepository` in `src/council_vote/application/ports.py`; `DjangoSessionRepository` in `src/council_vote/infrastructure/repository.py`; `SessionRecord` in `src/council_vote/infrastructure/models.py`; `build_session_use_cases` in `src/council_vote/composition/session.py`; `src/council_vote/domain/__init__.py` exports the sixteen names of S01.
 
-**Tests.** `make check` runs Import Linter (2 contracts kept); `test_REQ_CORE_imports_without_frameworks` in `tests/test_scaffold.py` starts Python with site packages disabled and imports the domain and the application; `test_REQ_USECASE_start_resolve_and_read_use_the_repository_port` exercises the application port; `test_REQ_PERSISTENCE_session_and_history_survive_a_process_restart` restores SQLite state in a separate process.
+**Tests.** `make check` runs Import Linter (2 contracts kept); `test_req_core_imports_without_frameworks` in `tests/test_scaffold.py` starts Python with site packages disabled and imports the domain and the application; `test_req_usecase_start_resolve_and_read_use_the_repository_port` exercises the application port; `test_req_persistence_session_and_history_survive_a_process_restart` restores SQLite state in a separate process.
 
 ## References
 

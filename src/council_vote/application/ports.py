@@ -1,20 +1,29 @@
+# Copyright 2026 TM-59
 """Persistence ports used by the application layer."""
 
 from dataclasses import dataclass
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
-from council_vote.domain import CouncilSession
+if TYPE_CHECKING:
+    from council_vote.domain import CouncilSession
 
 
 @dataclass(frozen=True, slots=True)
 class VersionedSession:
+    """A session as read from storage, with the version it was read at."""
+
     version: int
     session: CouncilSession
 
 
 class SessionRepository(Protocol):
-    def add(self, session: CouncilSession) -> None: ...
+    """Port for storing sessions; `save` succeeds only for the version that was read."""
 
-    def get(self, session_id: str) -> VersionedSession | None: ...
+    def add(self, session: CouncilSession) -> None:
+        """Store a new session at version 0."""
 
-    def save(self, snapshot: VersionedSession) -> bool: ...
+    def get(self, session_id: str) -> VersionedSession | None:
+        """Return the session and its version, or None when it does not exist."""
+
+    def save(self, snapshot: VersionedSession) -> bool:
+        """Write the session if nobody saved it since it was read; return whether it was written."""
