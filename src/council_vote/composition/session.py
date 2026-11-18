@@ -1,3 +1,4 @@
+# Copyright 2026 TM-59
 """Wire session use cases to the SQLite repository."""
 
 from dataclasses import dataclass

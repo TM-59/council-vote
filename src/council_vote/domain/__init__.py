@@ -1,3 +1,4 @@
+# Copyright 2026 TM-59
 """Council Session domain: standard library only."""
 
 from council_vote.domain.model import (

@@ -1,3 +1,4 @@
+# Copyright 2026 TM-59
 """Council Session: values, the aggregate, its events and the counting rule.
 
 Standard library only. Nothing here knows about Django, storage or the screen.

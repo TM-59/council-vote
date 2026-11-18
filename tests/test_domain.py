@@ -1,3 +1,4 @@
+# Copyright 2026 TM-59
 """Pure rules of the Council Session. No Django object is touched here."""
 
 import copy
