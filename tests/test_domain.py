@@ -17,7 +17,7 @@ from council_vote.domain import (
     Outcome,
     Seat,
     SessionEnded,
-    SessionFinished,
+    SessionFinishedError,
     Tally,
     VoteCounter,
 )
@@ -40,7 +40,7 @@ COUNTING = [
 
 
 @pytest.mark.parametrize(("ballots", "quorum", "approved"), COUNTING)
-def test_REQ_VOTE_quorum_and_strict_majority(
+def test_req_vote_quorum_and_strict_majority(
     ballots: tuple[Ballot, ...], quorum: bool, approved: bool
 ) -> None:
     tally = VoteCounter.tally(ballots)
@@ -49,7 +49,7 @@ def test_REQ_VOTE_quorum_and_strict_majority(
     assert tally.approved is approved
 
 
-def test_REQ_VOTE_every_split_of_five_follows_the_rule() -> None:
+def test_req_vote_every_split_of_five_follows_the_rule() -> None:
     for ballots in product((Y, N, A), repeat=5):
         tally = VoteCounter.tally(ballots)
         yes, no = ballots.count(Y), ballots.count(N)
@@ -57,12 +57,12 @@ def test_REQ_VOTE_every_split_of_five_follows_the_rule() -> None:
         assert tally.yes + tally.no + tally.abstain == 5
 
 
-def test_REQ_VOTE_only_ballots_are_counted() -> None:
+def test_req_vote_only_ballots_are_counted() -> None:
     with pytest.raises(TypeError):
         VoteCounter.tally([Y, "yes"])  # type: ignore[list-item]
 
 
-def test_REQ_AGENDA_values_are_exact_and_immutable() -> None:
+def test_req_agenda_values_are_exact_and_immutable() -> None:
     agendas = Agenda.all()
     assert len(agendas) == len(set(agendas)) == 8
     agenda = Agenda(True, False, True)
@@ -75,7 +75,7 @@ def test_REQ_AGENDA_values_are_exact_and_immutable() -> None:
             Agenda(bad, False, False)  # type: ignore[arg-type]
 
 
-def test_REQ_SEAT_public_condition_decides_one_ballot() -> None:
+def test_req_seat_public_condition_decides_one_ballot() -> None:
     seat = Seat("ferryman", ((Clause.GATE, True),), abstains_if=((Clause.BELL, True),))
     assert seat.vote(Agenda(False, True, False)) is Y
     assert seat.vote(Agenda(False, False, False)) is N
@@ -87,7 +87,7 @@ def test_REQ_SEAT_public_condition_decides_one_ballot() -> None:
         Seat("", ())
 
 
-def test_REQ_COUNCIL_five_distinct_seats() -> None:
+def test_req_council_five_distinct_seats() -> None:
     seat = Seat("a", ())
     with pytest.raises(ValueError):
         Council("short", (seat,) * 4)
@@ -95,7 +95,7 @@ def test_REQ_COUNCIL_five_distinct_seats() -> None:
         Council("twins", (seat,) * 5)
 
 
-def test_REQ_COUNCIL_fixed_councils_have_a_passing_agenda_but_not_every() -> None:
+def test_req_council_fixed_councils_have_a_passing_agenda_but_not_every() -> None:
     assert [council.name for council in COUNCILS] == [
         "Harbour Wardens",
         "Night Watch",
@@ -118,7 +118,7 @@ def test_REQ_COUNCIL_fixed_councils_have_a_passing_agenda_but_not_every() -> Non
     assert not set(passing[0]) & set(passing[1]) & set(passing[2])
 
 
-def test_REQ_COUNCIL_ballots_are_deterministic() -> None:
+def test_req_council_ballots_are_deterministic() -> None:
     for council in COUNCILS:
         for agenda in Agenda.all():
             assert council.ballots(agenda) == council.ballots(agenda)
@@ -129,7 +129,7 @@ WINNING = (Agenda(True, True, False), Agenda(False, False, True), Agenda(False, 
 REJECTED = Agenda(False, False, False)  # passes none of the three councils
 
 
-def test_REQ_SESSION_three_approvals_win() -> None:
+def test_req_session_three_approvals_win() -> None:
     session = CouncilSession("s1")
     assert (session.council, session.attempts_left, session.finished) == (
         0,
@@ -146,7 +146,7 @@ def test_REQ_SESSION_three_approvals_win() -> None:
     assert [resolved.council for resolved in session.history] == [0, 1, 2]
 
 
-def test_REQ_SESSION_a_rejection_costs_an_attempt_and_approval_restores_them() -> None:
+def test_req_session_a_rejection_costs_an_attempt_and_approval_restores_them() -> None:
     session = CouncilSession("s2")
     (resolved,) = session.resolve(REJECTED)
     assert isinstance(resolved, AgendaResolved) and not resolved.approved
@@ -156,7 +156,7 @@ def test_REQ_SESSION_a_rejection_costs_an_attempt_and_approval_restores_them() -
     assert (session.council, session.attempts_left) == (1, 2)
 
 
-def test_REQ_SESSION_two_rejections_lose_and_repeats_are_allowed() -> None:
+def test_req_session_two_rejections_lose_and_repeats_are_allowed() -> None:
     session = CouncilSession("s3")
     session.resolve(REJECTED)
     events = session.resolve(REJECTED)  # the same agenda again consumes another attempt
@@ -165,7 +165,7 @@ def test_REQ_SESSION_two_rejections_lose_and_repeats_are_allowed() -> None:
     assert len(session.history) == 2
 
 
-def test_REQ_SESSION_losing_at_the_last_council() -> None:
+def test_req_session_losing_at_the_last_council() -> None:
     session = CouncilSession("s4")
     session.resolve(WINNING[0])
     session.resolve(WINNING[1])
@@ -175,19 +175,19 @@ def test_REQ_SESSION_losing_at_the_last_council() -> None:
 
 
 @pytest.mark.parametrize("finish", [Outcome.WON, Outcome.LOST])
-def test_REQ_SESSION_finished_sessions_reject_and_do_not_change(finish: Outcome) -> None:
+def test_req_session_finished_sessions_reject_and_do_not_change(finish: Outcome) -> None:
     session = CouncilSession("s5")
     for agenda in WINNING if finish is Outcome.WON else (REJECTED, REJECTED):
         session.resolve(agenda)
     assert session.outcome is finish
     before = copy.deepcopy(session)
-    with pytest.raises(SessionFinished):
+    with pytest.raises(SessionFinishedError):
         session.resolve(WINNING[0])
     assert session == before
 
 
 @pytest.mark.parametrize("bad", [None, "lamps", (True, True, True), 7])
-def test_REQ_SESSION_invalid_agenda_changes_nothing(bad: object) -> None:
+def test_req_session_invalid_agenda_changes_nothing(bad: object) -> None:
     session = CouncilSession("s6")
     session.resolve(REJECTED)
     before = copy.deepcopy(session)
@@ -196,7 +196,7 @@ def test_REQ_SESSION_invalid_agenda_changes_nothing(bad: object) -> None:
     assert session == before
 
 
-def test_REQ_SESSION_identity_is_required_and_history_records_the_ballots() -> None:
+def test_req_session_identity_is_required_and_history_records_the_ballots() -> None:
     with pytest.raises(ValueError):
         CouncilSession("")
     with pytest.raises(ValueError):
@@ -208,7 +208,7 @@ def test_REQ_SESSION_identity_is_required_and_history_records_the_ballots() -> N
     assert session.history == (resolved,)
 
 
-def test_REQ_SESSION_every_pair_of_first_moves_is_reproducible() -> None:
+def test_req_session_every_pair_of_first_moves_is_reproducible() -> None:
     for first, second in product(Agenda.all(), repeat=2):
         runs = []
         for _ in range(2):

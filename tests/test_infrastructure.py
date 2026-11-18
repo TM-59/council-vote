@@ -8,7 +8,7 @@ import pytest
 from django.db import connection
 
 from council_vote.composition.session import build_session_use_cases
-from council_vote.domain import Agenda, CouncilSession, SessionFinished
+from council_vote.domain import Agenda, CouncilSession, SessionFinishedError
 from council_vote.infrastructure.repository import DjangoSessionRepository
 
 WINNING = (Agenda(True, True, False), Agenda(False, False, True), Agenda(False, True, True))
@@ -17,7 +17,7 @@ REJECTED = Agenda(False, False, False)
 
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
-def test_REQ_PERSISTENCE_session_and_history_survive_a_process_restart() -> None:
+def test_req_persistence_session_and_history_survive_a_process_restart() -> None:
     use_cases = build_session_use_cases()
     session = use_cases.start.execute()
     use_cases.resolve.execute(session.session_id, WINNING[0])
@@ -59,7 +59,7 @@ def test_REQ_PERSISTENCE_session_and_history_survive_a_process_restart() -> None
 
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
-def test_REQ_ATOMIC_invalid_and_finished_resolutions_do_not_write() -> None:
+def test_req_atomic_invalid_and_finished_resolutions_do_not_write() -> None:
     repository = DjangoSessionRepository()
     use_cases = build_session_use_cases()
     session = use_cases.start.execute()
@@ -75,14 +75,14 @@ def test_REQ_ATOMIC_invalid_and_finished_resolutions_do_not_write() -> None:
         resolve.execute(session.session_id, agenda)
     before_finished = repository.get(session.session_id)
     assert before_finished is not None
-    with pytest.raises(SessionFinished):
+    with pytest.raises(SessionFinishedError):
         resolve.execute(session.session_id, REJECTED)
     assert repository.get(session.session_id) == before_finished
 
 
 @pytest.mark.integration
 @pytest.mark.django_db(transaction=True)
-def test_REQ_ATOMIC_stale_competing_update_is_rejected_without_overwrite() -> None:
+def test_req_atomic_stale_competing_update_is_rejected_without_overwrite() -> None:
     repository = DjangoSessionRepository()
     repository.add(CouncilSession("competing-session"))
     first = repository.get("competing-session")

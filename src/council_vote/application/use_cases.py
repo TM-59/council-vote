@@ -11,11 +11,11 @@ if TYPE_CHECKING:
     from .ports import SessionRepository
 
 
-class SessionNotFound(Exception):
+class SessionNotFoundError(Exception):
     """No session exists with the requested identity."""
 
 
-class SessionConflict(Exception):
+class SessionConflictError(Exception):
     """The session changed after it was read."""
 
 
@@ -43,10 +43,10 @@ class ResolveAgenda:
     def execute(self, session_id: str, agenda: Agenda) -> tuple[Event, ...]:
         snapshot = self.repository.get(session_id)
         if snapshot is None:
-            raise SessionNotFound(session_id)
+            raise SessionNotFoundError(session_id)
         events = snapshot.session.resolve(agenda)
         if not self.repository.save(snapshot):
-            raise SessionConflict(session_id)
+            raise SessionConflictError(session_id)
         return events
 
 
@@ -57,5 +57,5 @@ class ReadSession:
     def execute(self, session_id: str) -> CouncilSession:
         snapshot = self.repository.get(session_id)
         if snapshot is None:
-            raise SessionNotFound(session_id)
+            raise SessionNotFoundError(session_id)
         return snapshot.session

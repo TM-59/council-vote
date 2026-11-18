@@ -33,7 +33,7 @@ class Outcome(Enum):
     LOST = "lost"
 
 
-class SessionFinished(Exception):
+class SessionFinishedError(Exception):
     """A finished session accepts no further agenda."""
 
 
@@ -243,7 +243,7 @@ class CouncilSession:
         Nothing changes when the session is finished or the agenda is not an Agenda.
         """
         if self.finished:
-            raise SessionFinished("the session is over")
+            raise SessionFinishedError("the session is over")
         if not isinstance(agenda, Agenda):
             raise TypeError("an agenda of three clauses is required")
         sitting = self.councils[self.council]

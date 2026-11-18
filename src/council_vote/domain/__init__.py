@@ -14,7 +14,7 @@ from council_vote.domain.model import (
     Outcome,
     Seat,
     SessionEnded,
-    SessionFinished,
+    SessionFinishedError,
     Tally,
     VoteCounter,
 )
@@ -33,7 +33,7 @@ __all__ = [
     "Outcome",
     "Seat",
     "SessionEnded",
-    "SessionFinished",
+    "SessionFinishedError",
     "Tally",
     "VoteCounter",
 ]

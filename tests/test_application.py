@@ -7,11 +7,11 @@ from council_vote.application.ports import VersionedSession
 from council_vote.application.use_cases import (
     ReadSession,
     ResolveAgenda,
-    SessionConflict,
-    SessionNotFound,
+    SessionConflictError,
+    SessionNotFoundError,
     StartSession,
 )
-from council_vote.domain import Agenda, CouncilSession, SessionFinished
+from council_vote.domain import Agenda, CouncilSession, SessionFinishedError
 
 WINNING = (Agenda(True, True, False), Agenda(False, False, True), Agenda(False, True, True))
 
@@ -40,7 +40,7 @@ class MemorySessionRepository:
         return True
 
 
-def test_REQ_USECASE_start_resolve_and_read_use_the_repository_port() -> None:
+def test_req_usecase_start_resolve_and_read_use_the_repository_port() -> None:
     repository = MemorySessionRepository()
     session = StartSession(repository, id_factory=lambda: "session-1").execute()
 
@@ -54,19 +54,19 @@ def test_REQ_USECASE_start_resolve_and_read_use_the_repository_port() -> None:
     assert restored.history[0].agenda == WINNING[0]
 
 
-def test_REQ_USECASE_missing_and_conflicting_sessions_are_explicit() -> None:
+def test_req_usecase_missing_and_conflicting_sessions_are_explicit() -> None:
     repository = MemorySessionRepository()
-    with pytest.raises(SessionNotFound):
+    with pytest.raises(SessionNotFoundError):
         ReadSession(repository).execute("missing")
 
     session = StartSession(repository, id_factory=lambda: "session-2").execute()
     repository.conflict_on_save = True
-    with pytest.raises(SessionConflict):
+    with pytest.raises(SessionConflictError):
         ResolveAgenda(repository).execute(session.session_id, WINNING[0])
 
 
 @pytest.mark.parametrize("finish", [True, False])
-def test_REQ_USECASE_finished_or_invalid_resolution_does_not_save(finish: bool) -> None:
+def test_req_usecase_finished_or_invalid_resolution_does_not_save(finish: bool) -> None:
     repository = MemorySessionRepository()
     session = StartSession(repository, id_factory=lambda: "session-3").execute()
     resolve = ResolveAgenda(repository)
@@ -75,7 +75,7 @@ def test_REQ_USECASE_finished_or_invalid_resolution_does_not_save(finish: bool) 
             resolve.execute(session.session_id, agenda)
         before = repository.get(session.session_id)
         assert before is not None
-        with pytest.raises(SessionFinished):
+        with pytest.raises(SessionFinishedError):
             resolve.execute(session.session_id, WINNING[0])
     else:
         before = repository.get(session.session_id)

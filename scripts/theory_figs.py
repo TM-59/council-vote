@@ -23,7 +23,7 @@ from council_vote.domain import (  # noqa: E402
     Council,
     CouncilSession,
     Outcome,
-    SessionFinished,
+    SessionFinishedError,
     Tally,
     VoteCounter,
 )
@@ -343,9 +343,9 @@ def main() -> None:
     try:
         lost.resolve(passing[0][0])
         kept = 0
-    except SessionFinished:
+    except SessionFinishedError:
         kept = 1
-    value("finished-refuses", "a finished session raises SessionFinished (theory 1)", kept, 1)
+    value("finished-refuses", "a finished session raises SessionFinishedError (theory 1)", kept, 1)
     value(
         "finished-history",
         "resolutions recorded after that refusal (theory 2: nothing was added)",
